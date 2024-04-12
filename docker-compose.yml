@@ -12,20 +12,23 @@ services:
       JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     networks:
       - app-network
+    depends_on:
+      - pgsql
 
   pgsql:
     image: postgres:14-alpine
     restart: always
     environment:
-      POSTGRES_USERNAME: root
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: db.currency_exchange
-    volumes:
-      - .:/var/lib/postgresql/data
+      POSTGRES_DB: currencyExchangedb
     ports:
       - "5432:5432"
     networks:
       - app-network
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+
 
   pgadmin:
     image: dpage/pgadmin4
@@ -37,7 +40,11 @@ services:
     restart: always
     networks:
       - app-network
+    depends_on:
+      - pgsql
 
 networks:
   app-network:
     driver: bridge
+volumes:
+  db-data:
