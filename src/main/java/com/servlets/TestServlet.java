@@ -1,16 +1,13 @@
 package com.servlets;
 
 import com.currencyexchage.CurrenciesService;
-import com.currencyexchage.model.Currencies;
 import com.currencyexchage.utils.JsonConvert;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 @WebServlet("/currencies")
 public class TestServlet extends HttpServlet {
