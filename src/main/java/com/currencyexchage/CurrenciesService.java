@@ -1,18 +1,18 @@
 package com.currencyexchage;
 
-import com.currencyexchage.model.Currencies;
+import com.currencyexchage.model.Currency;
 import java.util.List;
 
 public class CurrenciesService {
 
-  public List<Currencies> getCurrencies() {
+  public List<Currency> getCurrencies() {
 
     var сurrency = List.of(
-        new Currencies(1, "RUB","Russian ruble","₽"),
-        new Currencies(2, "EUR","Euro","€"),
-        new Currencies(3, "AUD","Australian dollar","$"),
-        new Currencies(4, "Br","Belarusian ruble","Br"),
-        new Currencies(5, "AMD","Armenian dram","֏")
+        new Currency(1, "RUB","Russian ruble","₽"),
+        new Currency(2, "EUR","Euro","€"),
+        new Currency(3, "AUD","Australian dollar","$"),
+        new Currency(4, "Br","Belarusian ruble","Br"),
+        new Currency(5, "AMD","Armenian dram","֏")
     );
 
 

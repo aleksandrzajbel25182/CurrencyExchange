@@ -9,13 +9,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ExchangeRates {
+public class ExchangeRate {
 
   private int id;
   @NonNull
-  private Currencies baseCurrencyId;
+  private Currency baseCurrencyId;
   @NonNull
-  private Currencies targetCurrencyId;
+  private Currency targetCurrencyId;
   @NonNull
   private BigDecimal rate;
 }

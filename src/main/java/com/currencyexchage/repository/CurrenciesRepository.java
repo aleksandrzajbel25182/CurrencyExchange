@@ -1,6 +1,6 @@
 package com.currencyexchage.repository;
 
-import com.currencyexchage.model.Currencies;
+import com.currencyexchage.model.Currency;
 import com.currencyexchage.utils.DatabaseConfig;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,19 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CurrenciesRepository implements CrudRepository<Currencies> {
+public class CurrenciesRepository implements CrudRepository<Currency> {
 
   private static final String GET_ALL_CURRENCIES = "SELECT id, code, fullName, sign FROM currencyexchanger.currencies ";
 
   @Override
-  public List<Currencies> get() {
+  public List<Currency> get() {
 
-    List<Currencies> currencies = new ArrayList<>();
+    List<Currency> currencies = new ArrayList<>();
     try (Connection connection = DatabaseConfig.getConnection();
         PreparedStatement statement = connection.prepareStatement(GET_ALL_CURRENCIES)) {
 
       ResultSet resultSet = statement.getResultSet();
-      Currencies currency = new Currencies();
+      Currency currency = new Currency();
 
       while (resultSet.next()) {
         currency.setId(resultSet.getInt("id"));
@@ -41,22 +41,22 @@ public class CurrenciesRepository implements CrudRepository<Currencies> {
   }
 
   @Override
-  public Optional<Currencies> findById(int id) {
+  public Optional<Currency> findById(int id) {
     return Optional.empty();
   }
 
   @Override
-  public void update(Currencies entity) {
+  public void update(Currency entity) {
 
   }
 
   @Override
-  public void save(Currencies entity) {
+  public void save(Currency entity) {
 
   }
 
   @Override
-  public void delete(Currencies entity) {
+  public void delete(Currency entity) {
 
   }
 }
