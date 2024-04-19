@@ -1,43 +1,52 @@
 package com.currencyexchage.repository;
 
 import com.currencyexchage.model.Currency;
-import com.currencyexchage.utils.DatabaseConfig;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 public class CurrenciesRepository implements CrudRepository<Currency> {
 
-  private static final String GET_ALL_CURRENCIES = "SELECT id, code, fullName, sign FROM currencyexchanger.currencies ";
+  private static final String GET_ALL_CURRENCIES = "SELECT id, code, fullName, sign FROM currencies ";
+
+//  private ConnectionPool connectionPool;
+
+//  public CurrenciesRepository(ConnectionPool connectionPool) {
+//    this.connectionPool = connectionPool;
+//  }
+//  public CurrenciesRepository() {
+//
+//  }
 
   @Override
   public List<Currency> get() {
 
     List<Currency> currencies = new ArrayList<>();
-    try (Connection connection = DatabaseConfig.getConnection();
-        PreparedStatement statement = connection.prepareStatement(GET_ALL_CURRENCIES)) {
 
-      ResultSet resultSet = statement.getResultSet();
-      Currency currency = new Currency();
-
-      while (resultSet.next()) {
-        currency.setId(resultSet.getInt("id"));
-        currency.setCode(resultSet.getString("code"));
-        currency.setFullName(resultSet.getString("fullName"));
-        currency.setSign(resultSet.getString("sign"));
-        currencies.add(currency);
-
-      }
-
-      return currencies;
-
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+//    connection = connectionPool.getConnection();
+//    try (Connection connection = DatabaseConfig.getConnection();
+//        PreparedStatement statement = connection.prepareStatement(GET_ALL_CURRENCIES)) {
+//
+//      ResultSet resultSet = statement.executeQuery();
+//
+//
+//      while (resultSet.next()) {
+//        var currency = new Currency();
+//        currency.setId(resultSet.getInt("id"));
+//        currency.setCode(resultSet.getString("code"));
+//        currency.setFullName(resultSet.getString("fullName"));
+//        currency.setSign(resultSet.getString("sign"));
+//        currencies.add(currency);
+//
+//      }
+    return currencies;
+//
+//    } catch (SQLException e) {
+//      throw new RuntimeException(e);
+//    } catch (ClassNotFoundException e) {
+//      throw new RuntimeException(e);
+//    }
   }
 
   @Override
