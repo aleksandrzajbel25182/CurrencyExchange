@@ -8,19 +8,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentNavigableMap;
 import javax.sql.DataSource;
 
 
 public class CurrenciesRepository implements CrudRepository<Currency> {
 
+  private final DataSource dataSource;
+
   private static final String GET_ALL_CURRENCIES = "SELECT id, code, fullName, sign FROM currencies ";
-
-//  private ConnectionPool connectionPool;
-
-  //  public CurrenciesRepository(ConnectionPool connectionPool) {
-//    this.connectionPool = connectionPool;
-//  }
-  private DataSource dataSource;
 
   public CurrenciesRepository(DataSource dataSource) {
     this.dataSource = dataSource;
@@ -42,10 +38,11 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
         currency.setCode(resultSet.getString("code"));
         currency.setFullName(resultSet.getString("fullName"));
         currency.setSign(resultSet.getString("sign"));
-        currencies.add(currency);
 
+        currencies.add(currency);
       }
       return currencies;
+
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

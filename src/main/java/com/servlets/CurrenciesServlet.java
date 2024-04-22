@@ -3,7 +3,6 @@ package com.servlets;
 import com.currencyexchage.repository.CurrenciesRepository;
 import com.currencyexchage.utils.JsonConvert;
 import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,12 +11,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 @WebServlet("/currencies")
-public class TestServlet extends HttpServlet {
+public class CurrenciesServlet extends HttpServlet {
 
   private CurrenciesRepository currencyRepository;
 
   @Override
-  public void init(ServletConfig config) throws ServletException {
+  public void init(ServletConfig config) {
     currencyRepository = (CurrenciesRepository) config.getServletContext()
         .getAttribute("currenciesRepository");
   }

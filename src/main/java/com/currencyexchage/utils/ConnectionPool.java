@@ -23,12 +23,10 @@ public class ConnectionPool {
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   public static Connection getConnection() {
     try {
-
       return dataSource.getConnection();
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -38,6 +36,4 @@ public class ConnectionPool {
   public static HikariDataSource getDataSource() {
     return dataSource;
   }
-
-
 }
