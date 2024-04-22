@@ -1,13 +1,14 @@
 package com.currencyexchage.listner;
 
 import com.currencyexchage.repository.CurrenciesRepository;
+import com.currencyexchage.utils.ConnectionPool;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import java.sql.Connection;
 import java.sql.SQLException;
-
+import javax.sql.DataSource;
 
 
 @WebListener
@@ -41,9 +42,11 @@ public class ApplicationContextListner implements ServletContextListener {
 //
 //    context.setAttribute("dbConnection", connectionPool);
 
+    DataSource dataSource = ConnectionPool.getDataSource();
 
+    sce.getServletContext().setAttribute("dataSource", dataSource);
 
-    CurrenciesRepository currenciesRepository = new CurrenciesRepository();  // DataSource(context));
+    CurrenciesRepository currenciesRepository = new CurrenciesRepository(dataSource);
     context.setAttribute("currenciesRepository", currenciesRepository);
 
     System.out.println("contextInitialized listner");
@@ -53,7 +56,7 @@ public class ApplicationContextListner implements ServletContextListener {
   @Override
   public void contextDestroyed(ServletContextEvent sce) {
     try {
-      ((Connection) sce.getServletContext().getAttribute("dbConnection")).close();
+      ((Connection) sce.getServletContext().getAttribute("dataSource")).close();
     } catch (SQLException e) {
       e.printStackTrace();
     }
