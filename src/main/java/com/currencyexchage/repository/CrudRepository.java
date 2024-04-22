@@ -7,7 +7,7 @@ public interface CrudRepository<T> {
 
   List<T> get();
 
-  Optional<T> findById(int id);
+  T findById(int id);
 
   void update(T entity);
 
