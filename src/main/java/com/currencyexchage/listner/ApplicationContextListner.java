@@ -1,6 +1,7 @@
 package com.currencyexchage.listner;
 
 import com.currencyexchage.repository.CurrenciesRepository;
+import com.currencyexchage.repository.ExchangeRateRepository;
 import com.currencyexchage.utils.ConnectionPool;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
@@ -18,36 +19,15 @@ public class ApplicationContextListner implements ServletContextListener {
   @Override
   public void contextInitialized(ServletContextEvent sce) {
     ServletContext context = sce.getServletContext();
-//
-//    Properties props = new Properties();
-//
-//    try (InputStream in = DatabaseConfig.class
-//        .getClassLoader()
-//        .getResourceAsStream("database.properties")) {
-//      props.load(in);
-//    } catch (IOException e) {
-//      throw new RuntimeException(e);
-//    }
-//
-//    ConnectionPool connectionPool = null;
-//    try {
-//      connectionPool = BasicConnectionPool.create(
-//          props.getProperty("DB_URL"),
-//          props.getProperty("DB_USER"),
-//          props.getProperty("DB_PASSWORD")
-//      );
-//    } catch (SQLException e) {
-//      throw new RuntimeException(e);
-//    }
-//
-//    context.setAttribute("dbConnection", connectionPool);
-
     DataSource dataSource = ConnectionPool.getDataSource();
 
     sce.getServletContext().setAttribute("dataSource", dataSource);
 
     CurrenciesRepository currenciesRepository = new CurrenciesRepository(dataSource);
     context.setAttribute("currenciesRepository", currenciesRepository);
+
+    ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(dataSource);
+    context.setAttribute("exchangeRateRepository", exchangeRateRepository);
 
     System.out.println("contextInitialized listner");
 
