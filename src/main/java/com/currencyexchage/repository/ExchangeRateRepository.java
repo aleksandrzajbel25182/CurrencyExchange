@@ -15,9 +15,12 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
   private final DataSource dataSource;
   private CurrenciesRepository currenciesRepository;
 
-  private final String GET_ALL_EXCHANGE_RATE = "SELECT id,basecurrencyid, targetcurrencyid,rate FROM exchangerates";
+  private static final String GET_ALL_EXCHANGE_RATE = "SELECT id,basecurrencyid, targetcurrencyid,rate "
+      + "FROM exchangerates";
 
-  private static final String GET_FIND_BY_СODE = "SELECT id, basecurrencyid, targetcurrencyid, rate FROM exchangerates WHERE basecurrencyid = ? and targetcurrencyid =?";
+  private static final String GET_FIND_BY_CODE = "SELECT id, basecurrencyid, targetcurrencyid, rate "
+      + "FROM exchangerates "
+      + "WHERE basecurrencyid = ? and targetcurrencyid =?";
 
   public ExchangeRateRepository(DataSource dataSource) {
     this.dataSource = dataSource;
@@ -26,31 +29,22 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
   @Override
   public List<ExchangeRate> get() {
-    List<ExchangeRate> listExchange = new ArrayList<>();
+    List<ExchangeRate> listExchange;
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(GET_ALL_EXCHANGE_RATE)) {
 
-      statement.execute();
-
       ResultSet resultSet = statement.executeQuery();
+      listExchange = new ArrayList<>();
 
       while (resultSet.next()) {
-        var exchange = new ExchangeRate(
-            resultSet.getInt("id"),
-            currenciesRepository.findById(resultSet.getInt("basecurrencyid")),
-            currenciesRepository.findById(resultSet.getInt("targetcurrencyid")),
-            BigDecimal.valueOf(resultSet.getDouble("rate"))
-        );
-
-        listExchange.add(exchange);
+        listExchange.add(createExchangeRate(resultSet));
       }
-
-      return listExchange;
 
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
+    return listExchange;
   }
 
   @Override
@@ -61,7 +55,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
   public ExchangeRate finByCode(String baseCurrency, String targetCurrency) {
     ExchangeRate exchangeRate = null;
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_СODE)) {
+        PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_CODE)) {
 
       var base = currenciesRepository.findByCode(baseCurrency);
       var target = currenciesRepository.findByCode(targetCurrency);
@@ -72,21 +66,13 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       ResultSet resultSet = statement.executeQuery();
 
       if (resultSet.next()) {
-        exchangeRate = new ExchangeRate(
-            resultSet.getInt("id"),
-            currenciesRepository.findById(resultSet.getInt("basecurrencyid")),
-            currenciesRepository.findById(resultSet.getInt("targetcurrencyid")),
-            BigDecimal.valueOf(resultSet.getDouble("rate"))
-        );
-
+        exchangeRate = createExchangeRate(resultSet);
       }
-    } catch (
-        SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
     return exchangeRate;
   }
-
 
   @Override
   public void update(ExchangeRate entity) {
@@ -101,5 +87,18 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
   @Override
   public void delete(ExchangeRate entity) {
 
+  }
+
+  private ExchangeRate createExchangeRate(ResultSet resultSet) {
+    try {
+      return new ExchangeRate(
+          resultSet.getInt("id"),
+          currenciesRepository.findById(resultSet.getInt("basecurrencyid")),
+          currenciesRepository.findById(resultSet.getInt("targetcurrencyid")),
+          BigDecimal.valueOf(resultSet.getDouble("rate"))
+      );
+    } catch (SQLException e) {
+      return null;
+    }
   }
 }

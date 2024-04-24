@@ -26,10 +26,10 @@ public class ExchangeRateServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String currenciesCodes = req.getPathInfo().replaceFirst("/", "").toUpperCase();
 
-    var base =  currenciesCodes.substring(0, 3);
-    var target = currenciesCodes.substring(3, 6);
+    var baseCurrency = currenciesCodes.substring(0, 3);
+    var targetCurrency = currenciesCodes.substring(3, 6);
     PrintWriter writer = resp.getWriter();
-    var message = JsonConvert.jsonConvert(exchangeRateRepository.finByCode(base,target));
+    var message = JsonConvert.jsonConvert(exchangeRateRepository.finByCode(baseCurrency, targetCurrency));
     writer.write(message);
   }
 
