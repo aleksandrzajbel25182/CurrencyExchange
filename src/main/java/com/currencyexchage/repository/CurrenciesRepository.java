@@ -18,6 +18,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
 
   private static final String GET_ALL_CURRENCIES = "SELECT id, code, fullName, sign FROM currencies ";
   private static final String GET_FIND_BY_ID = "SELECT id, code, fullName, sign FROM currencies WHERE id = ?";
+  private static final String GET_FIND_BY_СODE = "SELECT id, code, fullName, sign FROM currencies WHERE code = ?";
 
   public CurrenciesRepository(DataSource dataSource) {
     this.dataSource = dataSource;
@@ -57,7 +58,28 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
 
       statement.setInt(1, id);
       ResultSet resultSet = statement.executeQuery();
-      if(resultSet.next()){
+      if (resultSet.next()) {
+        currency.setId(resultSet.getInt("id"));
+        currency.setCode(resultSet.getString("code"));
+        currency.setFullName(resultSet.getString("fullName"));
+        currency.setSign(resultSet.getString("sign"));
+      }
+
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    return currency;
+  }
+
+  public Currency findByCode(String hasСode) {
+    Currency currency = new Currency();
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_СODE)) {
+
+      statement.setString(1, hasСode);
+      ResultSet resultSet = statement.executeQuery();
+      if (resultSet.next()) {
         currency.setId(resultSet.getInt("id"));
         currency.setCode(resultSet.getString("code"));
         currency.setFullName(resultSet.getString("fullName"));
