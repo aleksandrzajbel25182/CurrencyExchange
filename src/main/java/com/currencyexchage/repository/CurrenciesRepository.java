@@ -7,8 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentNavigableMap;
 import javax.sql.DataSource;
 
 
@@ -35,13 +33,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       ResultSet resultSet = statement.executeQuery();
 
       while (resultSet.next()) {
-        var currency = new Currency();
-        currency.setId(resultSet.getInt("id"));
-        currency.setCode(resultSet.getString("code"));
-        currency.setFullName(resultSet.getString("fullName"));
-        currency.setSign(resultSet.getString("sign"));
-
-        currencies.add(currency);
+        currencies.add(createCurrency(resultSet));
       }
       return currencies;
 
@@ -59,10 +51,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       statement.setInt(1, id);
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
-        currency.setId(resultSet.getInt("id"));
-        currency.setCode(resultSet.getString("code"));
-        currency.setFullName(resultSet.getString("fullName"));
-        currency.setSign(resultSet.getString("sign"));
+        currency= createCurrency(resultSet);
       }
 
 
@@ -80,10 +69,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       statement.setString(1, hasСode);
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
-        currency.setId(resultSet.getInt("id"));
-        currency.setCode(resultSet.getString("code"));
-        currency.setFullName(resultSet.getString("fullName"));
-        currency.setSign(resultSet.getString("sign"));
+        currency = createCurrency(resultSet);
       }
 
 
@@ -107,4 +93,19 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
   public void delete(Currency entity) {
 
   }
+
+  private Currency createCurrency(ResultSet resultSet) {
+    try {
+      return new Currency(
+          resultSet.getInt("id"),
+          resultSet.getString("code"),
+          resultSet.getString("fullname"),
+          resultSet.getString("sign")
+      );
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+
 }
