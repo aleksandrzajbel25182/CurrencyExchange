@@ -1,7 +1,8 @@
 package com.currencyexchage.repository;
 
+import java.sql.ResultSet;
 import java.util.List;
-import java.util.Optional;
+
 
 public interface CrudRepository<T> {
 
@@ -14,4 +15,6 @@ public interface CrudRepository<T> {
   void save(T entity);
 
   void delete(T entity);
+
+  T createEntity(ResultSet resultSet);
 }

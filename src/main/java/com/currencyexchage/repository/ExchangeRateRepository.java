@@ -38,7 +38,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       listExchange = new ArrayList<>();
 
       while (resultSet.next()) {
-        listExchange.add(createExchangeRate(resultSet));
+        listExchange.add(createEntity(resultSet));
       }
 
     } catch (SQLException e) {
@@ -66,7 +66,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       ResultSet resultSet = statement.executeQuery();
 
       if (resultSet.next()) {
-        exchangeRate = createExchangeRate(resultSet);
+        exchangeRate = createEntity(resultSet);
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -89,7 +89,8 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
   }
 
-  private ExchangeRate createExchangeRate(ResultSet resultSet) {
+  @Override
+  public ExchangeRate createEntity(ResultSet resultSet) {
     try {
       return new ExchangeRate(
           resultSet.getInt("id"),

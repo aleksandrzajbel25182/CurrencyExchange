@@ -33,7 +33,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       ResultSet resultSet = statement.executeQuery();
 
       while (resultSet.next()) {
-        currencies.add(createCurrency(resultSet));
+        currencies.add(createEntity(resultSet));
       }
       return currencies;
 
@@ -51,7 +51,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       statement.setInt(1, id);
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
-        currency= createCurrency(resultSet);
+        currency = createEntity(resultSet);
       }
 
 
@@ -69,7 +69,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       statement.setString(1, hasСode);
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
-        currency = createCurrency(resultSet);
+        currency = createEntity(resultSet);
       }
 
 
@@ -94,7 +94,8 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
 
   }
 
-  private Currency createCurrency(ResultSet resultSet) {
+  @Override
+  public Currency createEntity(ResultSet resultSet) {
     try {
       return new Currency(
           resultSet.getInt("id"),
@@ -106,6 +107,4 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       throw new RuntimeException(e);
     }
   }
-
-
 }
