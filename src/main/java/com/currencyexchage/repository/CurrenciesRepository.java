@@ -16,7 +16,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
 
   private static final String GET_ALL_CURRENCIES = "SELECT id, code, fullName, sign FROM currencies ";
   private static final String GET_FIND_BY_ID = "SELECT id, code, fullName, sign FROM currencies WHERE id = ?";
-  private static final String GET_FIND_BY_СODE = "SELECT id, code, fullName, sign FROM currencies WHERE code = ?";
+  private static final String GET_FIND_BY_CODE = "SELECT id, code, fullName, sign FROM currencies WHERE code = ?";
 
   public CurrenciesRepository(DataSource dataSource) {
     this.dataSource = dataSource;
@@ -61,12 +61,12 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     return currency;
   }
 
-  public Currency findByCode(String hasСode) {
+  public Currency findByCode(String hasCode) {
     Currency currency = new Currency();
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_СODE)) {
+        PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_CODE)) {
 
-      statement.setString(1, hasСode);
+      statement.setString(1, hasCode);
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
         currency = createEntity(resultSet);
