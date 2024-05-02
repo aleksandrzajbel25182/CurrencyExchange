@@ -3,13 +3,16 @@ package com.currencyexchage.listner;
 import com.currencyexchage.repository.CurrenciesRepository;
 import com.currencyexchage.repository.ExchangeRateRepository;
 import com.currencyexchage.utils.ConnectionPool;
+import com.currencyexchage.utils.JsonParser;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
+import javax.xml.parsers.ParserConfigurationException;
 
 
 @WebListener
@@ -31,6 +34,12 @@ public class ApplicationContextListner implements ServletContextListener {
 
     System.out.println("contextInitialized listner");
 
+    JsonParser js = new JsonParser();
+    try {
+      js.Parser();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
