@@ -28,7 +28,7 @@ public class JsonParser {
    */
   private String readBytes(String url) throws IOException {
     return new String(
-        new URL(URL)
+        new URL(url)
             .openStream()
             .readAllBytes()
     );
