@@ -1,88 +1,62 @@
 package com.currencyexchage.utils;
 
 
-import com.currencyexchage.model.Currency;
-import com.google.gson.Gson;
+import com.currencyexchage.model.CurrencyCB;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.List;
 import org.json.JSONObject;
 
 public class JsonParser {
 
-  final String URL = "https://www.cbr-xml-daily.ru/daily_json.js";
+  private static GsonBuilder gsonBuilder;
 
-  static class Currencys {
+  private static final String URL = "https://www.cbr-xml-daily.ru/daily_json.js";
 
-    String CharCode;
-    String Name;
-
-  }
-  static class CurrencysDeserializerFromJson implements JsonDeserializer {
-
-    @Override
-    public Object deserialize(JsonElement jsonElement, Type type,
-        JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-      JsonObject jObject = jsonElement.getAsJsonObject();
-      int id = 0;
-      String code = jObject.get("CharCode").getAsString();
-      String fullName = jObject.get("Name").getAsString();
-      String sign = jObject.get("CharCode").getAsString();
-      return new Currency(id, code,fullName, sign);
-    }
+  public JsonParser() {
+    gsonBuilder = new GsonBuilder();
+    gsonBuilder.registerTypeAdapter(CurrencyCB.class, new CurrencyCBDeserializerJsonImpl());
   }
 
-  public void Parser() throws IOException {
+
+  /**
+   * Converts an array of bytes to a string.
+   *
+   * @param url
+   * @return a string of bytes
+   */
+  private String readBytes(String url) throws IOException {
+    return new String(
+        new URL(URL)
+            .openStream()
+            .readAllBytes()
+    );
+  }
+
+  public List<CurrencyCB> Parser() {
 
     try {
-      // Преобразует массив байт в строку.
-      String json = new String(
-          // Создаёт URL со ссылкой на API ЦБ.
-          new URL("https://www.cbr-xml-daily.ru/daily_json.js")
-              // Открывает поток получения данных.
-              .openStream()
-              // Считывает все данные в виде массива байт.
-              .readAllBytes()
-      );
+      String json = readBytes(URL);
 
-      // Парсит JSON и получает данные валют.
       JSONObject currenciesData = new JSONObject(json)
           .getJSONObject("Valute");
 
-      GsonBuilder gson = new GsonBuilder();
-      gson.registerTypeAdapter(Currency.class , new CurrencysDeserializerFromJson());
-
-//      Currency targetObject = gson.create().fromJson(, Currency.class);
-//      System.out.println(targetObject.getId() + " " + targetObject.getFullName());
-//
-//       Получает коды валют из полученных данных.
-      List<Currency> currencies = currenciesData.keySet()
-          // Преобразовывает Set в Stream.
+      return currenciesData.keySet()
           .stream()
-          // При помощи GSON переводит JSON строчку валюты к классу Currency.
           .map((currency) ->
-              gson.create().fromJson(
+              gsonBuilder.create().fromJson(
                   currenciesData.getJSONObject(currency)
                       .toString(),
-                  Currency.class
+                  CurrencyCB.class
               )
-          )// Преобразовывает Stream в List.
+          )
           .toList();
 
-      // Выводит информацию в консоль.
-      currencies.forEach((currency) ->
-          System.out.println(currency.getId() + " (" + currency.getFullName() + ") - " + currency.getCode() )
-      );
-    } catch (Exception ignored) {
-      ignored.printStackTrace();
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+    return null;
   }
 }
 
