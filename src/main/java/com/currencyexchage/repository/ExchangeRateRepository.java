@@ -15,12 +15,18 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
   private final DataSource dataSource;
   private CurrenciesRepository currenciesRepository;
 
-  private static final String GET_ALL_EXCHANGE_RATE = "SELECT id,basecurrencyid, targetcurrencyid,rate "
-      + "FROM exchangerates";
+  private static final String GET_ALL_EXCHANGE_RATE =
+      "SELECT id,basecurrencyid, targetcurrencyid,rate "
+          + "FROM exchangerates";
 
-  private static final String GET_FIND_BY_CODE = "SELECT id, basecurrencyid, targetcurrencyid, rate "
-      + "FROM exchangerates "
-      + "WHERE basecurrencyid = ? and targetcurrencyid =?";
+  private static final String GET_FIND_BY_CODE =
+      "SELECT id, basecurrencyid, targetcurrencyid, rate "
+          + "FROM exchangerates "
+          + "WHERE basecurrencyid = ? and targetcurrencyid =?";
+
+  private static final String INSERT_EXCHANGE_RATE = "INSERT INTO exchangerates(basecurrencyid,targetcurrencyid,rate) VALUES(?,?,?) ";
+
+  private static final String UPDATE_EXCHANGE_RATE = "UPDATE exchangerates SET rate = ? WHERE id = ?";
 
   public ExchangeRateRepository(DataSource dataSource) {
     this.dataSource = dataSource;
@@ -74,8 +80,39 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     return exchangeRate;
   }
 
+
+  public void create(ExchangeRate entity) {
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_EXCHANGE_RATE)) {
+
+      preparedStatement.setInt(1, entity.getBaseCurrencyId().getId());
+      preparedStatement.setInt(2, entity.getTargetCurrencyId().getId());
+      preparedStatement.setBigDecimal(3, entity.getRate());
+      preparedStatement.executeUpdate();
+
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+
   @Override
   public void update(ExchangeRate entity) {
+
+    try(Connection connection = dataSource.getConnection();
+    PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_EXCHANGE_RATE)){
+
+      preparedStatement.setInt(1, entity.getId());
+      preparedStatement.setBigDecimal(2, entity.getRate());
+      preparedStatement.executeUpdate();
+
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
 
   }
 

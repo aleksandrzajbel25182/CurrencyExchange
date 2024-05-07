@@ -21,6 +21,9 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
   private static final String GET_FIND_BY_CODE = "SELECT id, code, fullName, sign FROM currencies WHERE code = ?";
   private static final String INSERT_CURRENCIES = "INSERT INTO currencies (code,fullname,sign) VALUES(?,?,?) ";
 
+  private static final String UPDATE_CURRENCY = "UPDATE currencies SET code = ? , fullname = ? , sign = ? WHERE id = ?";
+
+
   public CurrenciesRepository(DataSource dataSource) {
     this.dataSource = dataSource;
   }
@@ -121,7 +124,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       statement.executeBatch();
 
     } catch (SQLException e) {
-     e.printStackTrace();
+      e.printStackTrace();
     }
 
   }
@@ -129,6 +132,17 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
   @Override
   public void update(Currency entity) {
 
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CURRENCY)) {
+      preparedStatement.setString(1,entity.getCode());
+      preparedStatement.setString(2,entity.getFullName());
+      preparedStatement.setString(3,entity.getSign());
+      preparedStatement.setInt(4,entity.getId());
+
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override

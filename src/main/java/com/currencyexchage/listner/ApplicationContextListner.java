@@ -1,5 +1,6 @@
 package com.currencyexchage.listner;
 
+import com.currencyexchage.model.CurrencyCB;
 import com.currencyexchage.repository.CurrenciesRepository;
 import com.currencyexchage.repository.ExchangeRateRepository;
 import com.currencyexchage.utils.ConnectionPool;
@@ -11,8 +12,8 @@ import jakarta.servlet.annotation.WebListener;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import javax.sql.DataSource;
-import javax.xml.parsers.ParserConfigurationException;
 
 
 @WebListener
@@ -23,6 +24,7 @@ public class ApplicationContextListner implements ServletContextListener {
   public void contextInitialized(ServletContextEvent sce) {
     ServletContext context = sce.getServletContext();
     DataSource dataSource = ConnectionPool.getDataSource();
+    JsonParser jsonParser = new JsonParser();
 
     sce.getServletContext().setAttribute("dataSource", dataSource);
 
@@ -32,14 +34,18 @@ public class ApplicationContextListner implements ServletContextListener {
     ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(dataSource);
     context.setAttribute("exchangeRateRepository", exchangeRateRepository);
 
-    System.out.println("contextInitialized listner");
+//    List<CurrencyCB> currencyCB = jsonParser.Parser();
+//    currenciesRepository.create(currencyCB);
 
-    JsonParser js = new JsonParser();
+
+
+    System.out.println("contextInitialized listner");
     try {
-      js.Parser();
+      System.out.println(jsonParser.parserDate());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+
   }
 
   @Override

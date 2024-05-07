@@ -13,3 +13,8 @@ CREATE TABLE exchangeRates
     targetCurrencyId INT NOT NULL REFERENCES currencies (ID),
     rate DECIMAL NOT NULL
 );
+
+CREATE TABLE data_central_bank
+(
+    currentDate date primary key
+);
