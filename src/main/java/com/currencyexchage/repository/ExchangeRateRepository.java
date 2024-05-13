@@ -101,12 +101,34 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
   @Override
   public void update(ExchangeRate entity) {
 
-    try(Connection connection = dataSource.getConnection();
-    PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_EXCHANGE_RATE)){
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_EXCHANGE_RATE)) {
 
       preparedStatement.setInt(1, entity.getId());
       preparedStatement.setBigDecimal(2, entity.getRate());
       preparedStatement.executeUpdate();
+
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+
+  }
+
+  public void createAll(List<ExchangeRate> entitys) {
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_EXCHANGE_RATE)) {
+
+      for (var entity : entitys) {
+
+        preparedStatement.setInt(1, entity.getBaseCurrencyId().getId());
+        preparedStatement.setInt(2, entity.getTargetCurrencyId().getId());
+        preparedStatement.setBigDecimal(3, entity.getRate());
+        preparedStatement.addBatch();
+      }
+      preparedStatement.executeBatch();
 
 
     } catch (SQLException e) {
@@ -124,6 +146,23 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
   @Override
   public void delete(ExchangeRate entity) {
 
+  }
+
+  public boolean isEmpty() {
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(GET_ALL_EXCHANGE_RATE)) {
+
+      ResultSet resultSet = statement.executeQuery();
+
+      if (!resultSet.next()) {
+        return true;
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return false;
   }
 
   @Override

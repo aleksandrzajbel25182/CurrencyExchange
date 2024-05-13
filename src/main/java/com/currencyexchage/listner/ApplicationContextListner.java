@@ -5,6 +5,7 @@ import com.currencyexchage.repository.CurrenciesRepository;
 import com.currencyexchage.repository.ExchangeRateRepository;
 import com.currencyexchage.utils.ConnectionPool;
 import com.currencyexchage.utils.JsonParser;
+import com.currencyexchage.utils.UpdateDb;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -36,8 +37,8 @@ public class ApplicationContextListner implements ServletContextListener {
 
 //    List<CurrencyCB> currencyCB = jsonParser.Parser();
 //    currenciesRepository.create(currencyCB);
-
-
+    UpdateDb updateDb = new UpdateDb(dataSource);
+    updateDb.upd();
 
     System.out.println("contextInitialized listner");
     try {
