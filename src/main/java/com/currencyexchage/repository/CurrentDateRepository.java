@@ -15,7 +15,7 @@ public class CurrentDateRepository {
   private static final String INSERT_CURRENT_DATE = "INSERT INTO data_central_bank (currentdate) VALUES(?) ";
   private static final String UPDATE_CURRENT_DATE = "UPDATE data_central_bank SET currentdate = ? ";
   private static final String COINCIDENCE = "SELECT currentdate FROM data_central_bank WHERE currentdate = ?";
-  private static final String GET = "SELECT currentdate FROM data_central_bank";
+//  private static final String GET = "SELECT currentdate FROM data_central_bank";
 
 
   public CurrentDateRepository(DataSource dataSource) {
@@ -34,39 +34,44 @@ public class CurrentDateRepository {
 
       if (resultSet.next()) {
 //        currentDate.setCurrentDate(resultSet.getDate("currentdate"));
+        connection.close();
         return true;
       }
 
     } catch (SQLException e) {
       e.printStackTrace();
+      return false;
     }
     return false;
   }
 
-  public boolean isEmpty() {
-
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(GET)) {
-
-      ResultSet resultSet = statement.executeQuery();
-
-      if (!resultSet.next()) {
-        return true;
-      }
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return false;
-  }
+//  public boolean isEmptyData() {
+//
+//    try {
+//      Connection connection = dataSource.getConnection();
+//      PreparedStatement statement = connection.prepareStatement(GET);
+//
+//      ResultSet resultSet = statement.executeQuery();
+//
+//      if (!resultSet.next()) {
+//        return true;
+//      }
+//
+//    } catch (SQLException e) {
+//      e.printStackTrace();
+//    }
+//    return false;
+//  }
 
   public void create(CurrentDate currentDate) {
-    java.sql.Date sqlDate = new java.sql.Date(currentDate.getCurrentDate().getTime());
+    try {
+      Connection connection = dataSource.getConnection();
+      PreparedStatement statement = connection.prepareStatement(INSERT_CURRENT_DATE);
 
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(INSERT_CURRENT_DATE)) {
-      statement.setDate(1, sqlDate);
+      statement.setDate(1, convertDate(currentDate.getCurrentDate()));
       statement.executeUpdate();
+
+      connection.close();
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -74,16 +79,22 @@ public class CurrentDateRepository {
 
 
   public void update(CurrentDate currentDate) {
+    try {
+      Connection connection = dataSource.getConnection();
+      PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CURRENT_DATE);
 
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CURRENT_DATE)) {
-
-      preparedStatement.setDate(1, (java.sql.Date) currentDate.getCurrentDate());
+      preparedStatement.setDate(1, convertDate(currentDate.getCurrentDate()));
       preparedStatement.executeUpdate();
+
+      connection.close();
 
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  private java.sql.Date convertDate(Date date) {
+    return new java.sql.Date(date.getTime());
   }
 
 }

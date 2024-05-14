@@ -35,17 +35,10 @@ public class ApplicationContextListner implements ServletContextListener {
     ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(dataSource);
     context.setAttribute("exchangeRateRepository", exchangeRateRepository);
 
-//    List<CurrencyCB> currencyCB = jsonParser.Parser();
-//    currenciesRepository.create(currencyCB);
     UpdateDb updateDb = new UpdateDb(dataSource);
-    updateDb.upd();
+    updateDb.updateExchangeRate();
 
     System.out.println("contextInitialized listner");
-    try {
-      System.out.println(jsonParser.parserDate());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
 
   }
 
