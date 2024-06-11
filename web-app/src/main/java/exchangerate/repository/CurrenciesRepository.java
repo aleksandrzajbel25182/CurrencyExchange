@@ -1,12 +1,10 @@
-package com.currencyexchage.repository;
+package exchangerate.repository;
 
-import com.currencyexchage.model.Currency;
-import com.currencyexchage.model.CurrencyCB;
+import exchangerate.model.Currency;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -16,12 +14,12 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
 
   private final DataSource dataSource;
 
-  private static final String GET_ALL_CURRENCIES = "SELECT id, code, fullName, sign FROM currencies ";
-  private static final String GET_FIND_BY_ID = "SELECT id, code, fullName, sign FROM currencies WHERE id = ?";
-  private static final String GET_FIND_BY_CODE = "SELECT id, code, fullName, sign FROM currencies WHERE code = ?";
-  private static final String INSERT_CURRENCIES = "INSERT INTO currencies (code,fullname,sign) VALUES(?,?,?) ";
+  private static final String GET_ALL_CURRENCIES = "SELECT id, charcode, fullName FROM currencies";
+  private static final String GET_FIND_BY_ID = "SELECT id, charcode, fullName FROM currencies WHERE id = ?";
+  private static final String GET_FIND_BY_CODE = "SELECT id, charcode, fullName FROM currencies WHERE charcode = ?";
+  private static final String INSERT_CURRENCIES = "INSERT INTO currencies (charcode,fullname) VALUES(?,?) ";
 
-  private static final String UPDATE_CURRENCY = "UPDATE currencies SET code = ? , fullname = ? , sign = ? WHERE id = ?";
+  private static final String UPDATE_CURRENCY = "UPDATE currencies SET charcode = ? , fullname = ?  WHERE id = ?";
 
 
   public CurrenciesRepository(DataSource dataSource) {
@@ -104,30 +102,30 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
   }
 
 
-  public void create(List<CurrencyCB> entity) {
-
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(INSERT_CURRENCIES)) {
-
-      for (var currency : entity) {
-
-        if (findCode(currency.getCharCode()) == false) {
-
-          statement.setString(1, currency.getCharCode());
-          statement.setString(2, currency.getName());
-          statement.setString(3, currency.getNumCode());
-          statement.addBatch();
-        }
-
-
-      }
-      statement.executeBatch();
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-
-  }
+//  public void create(List<Currency> entity) {
+//
+//    try (Connection connection = dataSource.getConnection();
+//        PreparedStatement statement = connection.prepareStatement(INSERT_CURRENCIES)) {
+//
+//      for (var currency : entity) {
+//
+//        if (findCode(currency.getCode()) == false) {
+//
+//          statement.setString(1, currency.getCode());
+//          statement.setString(2, currency.getFullName());
+//
+//          statement.addBatch();
+//        }
+//
+//
+//      }
+//      statement.executeBatch();
+//
+//    } catch (SQLException e) {
+//      e.printStackTrace();
+//    }
+//
+//  }
 
   @Override
   public void update(Currency entity) {
@@ -136,8 +134,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
         PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CURRENCY)) {
       preparedStatement.setString(1,entity.getCode());
       preparedStatement.setString(2,entity.getFullName());
-      preparedStatement.setString(3,entity.getSign());
-      preparedStatement.setInt(4,entity.getId());
+      preparedStatement.setInt(3,entity.getId());
 
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
@@ -161,8 +158,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       return new Currency(
           resultSet.getInt("id"),
           resultSet.getString("code"),
-          resultSet.getString("fullname"),
-          resultSet.getString("sign")
+          resultSet.getString("fullname")
       );
     } catch (SQLException e) {
       throw new RuntimeException(e);

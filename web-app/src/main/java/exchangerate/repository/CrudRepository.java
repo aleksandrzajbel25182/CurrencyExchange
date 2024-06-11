@@ -1,4 +1,4 @@
-package com.currencyexchage.repository;
+package exchangerate.repository;
 
 import java.sql.ResultSet;
 import java.util.List;

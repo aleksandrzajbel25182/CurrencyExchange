@@ -1,19 +1,14 @@
-package com.currencyexchage.listner;
+package exchangerate.listner;
 
-import com.currencyexchage.model.CurrencyCB;
-import com.currencyexchage.repository.CurrenciesRepository;
-import com.currencyexchage.repository.ExchangeRateRepository;
-import com.currencyexchage.utils.ConnectionPool;
-import com.currencyexchage.utils.JsonParser;
-import com.currencyexchage.utils.UpdateDb;
+import exchangerate.repository.CurrenciesRepository;
+import exchangerate.repository.ExchangeRateRepository;
+import exchangerate.utils.ConnectionPool;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 import javax.sql.DataSource;
 
 
@@ -25,7 +20,7 @@ public class ApplicationContextListner implements ServletContextListener {
   public void contextInitialized(ServletContextEvent sce) {
     ServletContext context = sce.getServletContext();
     DataSource dataSource = ConnectionPool.getDataSource();
-    JsonParser jsonParser = new JsonParser();
+//    JsonParser jsonParser = new JsonParser();
 
     sce.getServletContext().setAttribute("dataSource", dataSource);
 
@@ -35,8 +30,8 @@ public class ApplicationContextListner implements ServletContextListener {
     ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(dataSource);
     context.setAttribute("exchangeRateRepository", exchangeRateRepository);
 
-    UpdateDb updateDb = new UpdateDb(dataSource);
-    updateDb.updateExchangeRate();
+//    UpdateDb updateDb = new UpdateDb(dataSource);
+//    updateDb.updateExchangeRate();
 
     System.out.println("contextInitialized listner");
 

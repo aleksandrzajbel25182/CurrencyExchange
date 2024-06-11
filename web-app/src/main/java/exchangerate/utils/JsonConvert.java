@@ -1,4 +1,4 @@
-package com.currencyexchage.utils;
+package exchangerate.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

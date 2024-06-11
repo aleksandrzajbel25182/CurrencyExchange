@@ -1,6 +1,7 @@
-package com.currencyexchage.repository;
+package exchangerate.repository;
 
-import com.currencyexchage.model.ExchangeRate;
+import exchangerate.model.ExchangeRate;
+import exchangerate.repository.CurrenciesRepository;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,15 +17,15 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
   private CurrenciesRepository currenciesRepository;
 
   private static final String GET_ALL_EXCHANGE_RATE =
-      "SELECT id,basecurrencyid, targetcurrencyid,rate "
+      "SELECT id,basecurrencyid, targetcurrencyid,rate,date "
           + "FROM exchangerates";
 
   private static final String GET_FIND_BY_CODE =
-      "SELECT id, basecurrencyid, targetcurrencyid, rate "
+      "SELECT id, basecurrencyid, targetcurrencyid, rate, date "
           + "FROM exchangerates "
           + "WHERE basecurrencyid = ? and targetcurrencyid =?";
 
-  private static final String INSERT_EXCHANGE_RATE = "INSERT INTO exchangerates(basecurrencyid,targetcurrencyid,rate) VALUES(?,?,?) ";
+  private static final String INSERT_EXCHANGE_RATE = "INSERT INTO exchangerates(basecurrencyid,targetcurrencyid,rate,date) VALUES(?,?,?,?) ";
 
   private static final String UPDATE_EXCHANGE_RATE = "UPDATE exchangerates SET rate = ? WHERE id = ?";
 
@@ -188,7 +189,8 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
           resultSet.getInt("id"),
           currenciesRepository.findById(resultSet.getInt("basecurrencyid")),
           currenciesRepository.findById(resultSet.getInt("targetcurrencyid")),
-          BigDecimal.valueOf(resultSet.getDouble("rate"))
+          BigDecimal.valueOf(resultSet.getDouble("rate")),
+          resultSet.getDate("date").toLocalDate()
       );
     } catch (SQLException e) {
       return null;

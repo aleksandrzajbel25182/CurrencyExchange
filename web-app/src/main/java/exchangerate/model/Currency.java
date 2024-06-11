@@ -1,4 +1,4 @@
-package com.currencyexchage.model;
+package exchangerate.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +20,4 @@ public class Currency {
   @NonNull
   private String fullName;
 
-  @NonNull
-  private String sign;
 }

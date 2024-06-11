@@ -1,4 +1,4 @@
-package com.currencyexchage.utils;
+package exchangerate.utils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

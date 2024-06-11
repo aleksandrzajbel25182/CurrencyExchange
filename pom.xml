@@ -4,118 +4,25 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.CurrencyExchange</groupId>
+  <groupId>com.currencyExchange</groupId>
   <artifactId>currencyExchange</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>currencyExchange</name>
-  <packaging>war</packaging>
+  <packaging>pom</packaging>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>11</maven.compiler.target>
-    <maven.compiler.source>11</maven.compiler.source>
-    <junit.version>5.9.2</junit.version>
-  </properties>
+  <modules>
+    <module>UpdateSource</module>
+    <module>web-app</module>
+  </modules>
 
-  <dependencies>
-
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <version>5.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>RELEASE</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>42.7.3</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.9.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-      <version>20231013</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP</artifactId>
-      <version>5.1.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-nop</artifactId>
-      <version>1.7.36</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-maven-plugin</artifactId>
-      <version>10.14.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-database-postgresql</artifactId>
-      <version>10.14.0</version>
-      <scope>runtime</scope>
-    </dependency>
-
-  </dependencies>
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>3.3.2</version>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <source>16</source>
           <target>16</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-maven-plugin</artifactId>
-        <version>10.14.0</version>
-        <configuration>
-          <url>jdbc:postgresql://localhost:5432/currencyExchangedb</url>
-          <driver>org.postgresql.Driver</driver>
-          <user>postgres</user>
-          <password>root</password>
         </configuration>
       </plugin>
     </plugins>

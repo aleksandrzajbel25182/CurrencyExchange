@@ -1,6 +1,7 @@
-package com.currencyexchage.model;
+package exchangerate.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,4 +21,6 @@ public class ExchangeRate {
   private Currency targetCurrencyId;
   @NonNull
   private BigDecimal rate;
+  @NonNull
+  private LocalDate date;
 }
