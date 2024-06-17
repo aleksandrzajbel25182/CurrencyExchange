@@ -1,22 +1,18 @@
 package update;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import update.Source.CBRFSource;
+import java.util.HashMap;
 
 public class Main {
 
   public static void main(String[] args) {
-    System.out.println("Hello world!");
-    CBRFSource cbrf = new CBRFSource();
-    List<CurrencyDTO> list = cbrf.get(LocalDate.now());
 
-    for (CurrencyDTO cur : list)
-    {
-      System.out.println(cur.getName() + " "+  cur.getCharCode());
+    HashMap<String, String> map = new HashMap<String, String>();
+    map.put("x", "y");
 
-    }
+    String value = map.get("y"); // value = "y"
+    System.out.println(value);
+
 
   }
+
 }

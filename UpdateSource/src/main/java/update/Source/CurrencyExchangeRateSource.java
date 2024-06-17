@@ -2,10 +2,11 @@ package update.Source;
 
 import java.time.LocalDate;
 import java.util.List;
-import update.CurrencyDTO;
+import update.dto.CurrencyDto;
+import update.dto.ExchageRateDto;
 
 public interface CurrencyExchangeRateSource {
 
-  List<CurrencyDTO> get(LocalDate date);
+  ExchageRateDto get(LocalDate date);
 
 }

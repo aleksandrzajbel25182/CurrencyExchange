@@ -14,10 +14,12 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
 
   private final DataSource dataSource;
 
-  private static final String GET_ALL_CURRENCIES = "SELECT id, charcode, fullName FROM currencies";
+  private static final String GET_ALL_CURRENCIES = "SELECT id, charcode, fullName FROM currencies ";
   private static final String GET_FIND_BY_ID = "SELECT id, charcode, fullName FROM currencies WHERE id = ?";
-  private static final String GET_FIND_BY_CODE = "SELECT id, charcode, fullName FROM currencies WHERE charcode = ?";
-  private static final String INSERT_CURRENCIES = "INSERT INTO currencies (charcode,fullname) VALUES(?,?) ";
+  private static final String GET_FIND_BY_CODE = "SELECT id, charcode,fullName FROM currencies WHERE charcode = ?";
+
+  public static final String GET_CHARCODE_ID = "SELECT id, FROM currencies WHERE charcode = ?";
+  private static final String INSERT_CURRENCIES = "INSERT INTO currencies (code,fullname) VALUES(?,?) ";
 
   private static final String UPDATE_CURRENCY = "UPDATE currencies SET charcode = ? , fullname = ?  WHERE id = ?";
 
@@ -65,22 +67,20 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     return currency;
   }
 
-  public boolean findCode(String hasCode) {
+  public Integer findCodeId(String hasCode) {
+
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_CODE)) {
+        PreparedStatement statement = connection.prepareStatement(GET_CHARCODE_ID)) {
 
       statement.setString(1, hasCode);
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
-        return true;
-      } else {
-        return false;
+        return resultSet.getInt("id");
       }
-
-
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
+    return -1;
   }
 
   public Currency findByCode(String hasCode) {
@@ -101,40 +101,31 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     return currency;
   }
 
+  public void create(Currency entity) {
 
-//  public void create(List<Currency> entity) {
-//
-//    try (Connection connection = dataSource.getConnection();
-//        PreparedStatement statement = connection.prepareStatement(INSERT_CURRENCIES)) {
-//
-//      for (var currency : entity) {
-//
-//        if (findCode(currency.getCode()) == false) {
-//
-//          statement.setString(1, currency.getCode());
-//          statement.setString(2, currency.getFullName());
-//
-//          statement.addBatch();
-//        }
-//
-//
-//      }
-//      statement.executeBatch();
-//
-//    } catch (SQLException e) {
-//      e.printStackTrace();
-//    }
-//
-//  }
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(INSERT_CURRENCIES)) {
+
+      statement.setString(1, entity.getCode());
+      statement.setString(2, entity.getFullName());
+
+      statement.executeUpdate();
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+  }
+
 
   @Override
   public void update(Currency entity) {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CURRENCY)) {
-      preparedStatement.setString(1,entity.getCode());
-      preparedStatement.setString(2,entity.getFullName());
-      preparedStatement.setInt(3,entity.getId());
+      preparedStatement.setString(1, entity.getCode());
+      preparedStatement.setString(2, entity.getFullName());
+      preparedStatement.setInt(3, entity.getId());
 
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
@@ -157,7 +148,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     try {
       return new Currency(
           resultSet.getInt("id"),
-          resultSet.getString("code"),
+          resultSet.getString("charcode"),
           resultSet.getString("fullname")
       );
     } catch (SQLException e) {

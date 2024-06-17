@@ -1,11 +1,11 @@
-package update;
+package update.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CurrencyDTO {
+public class CurrencyDto {
 
   private String charCode;
 

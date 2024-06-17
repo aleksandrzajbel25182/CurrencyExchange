@@ -13,7 +13,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import update.CurrencyDTO;
+import update.dto.CurrencyDto;
+import update.dto.ExchageRateDto;
 
 public class CBRFSource implements CurrencyExchangeRateSource {
 
@@ -23,8 +24,10 @@ public class CBRFSource implements CurrencyExchangeRateSource {
       = DateTimeFormatter.ofPattern("MM");
 
 
+
   @Override
-  public List<CurrencyDTO> get(LocalDate date) {
+  public ExchageRateDto get(LocalDate date) {
+    ExchageRateDto exchageRateDto  = new ExchageRateDto();
     String day = date.format(dayOfMonthFormatter);
     String month = date.format(monthFormatter);
     int year = date.getYear();
@@ -35,14 +38,27 @@ public class CBRFSource implements CurrencyExchangeRateSource {
 
     Document doc = buildDocument(URL);
 
+    Node root = doc.getFirstChild();
+
+    String dateInString = root
+        .getAttributes()
+        .item(0)
+        .getNodeValue()
+        .replace('.', '-');
+
+
+    LocalDate dateCBRF = LocalDate.parse(dateInString , DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+
     NodeList valute = doc.getElementsByTagName("Valute");
-    List<CurrencyDTO> rates = new ArrayList<>();
+    List<CurrencyDto> rates = new ArrayList<>();
 
     for (int i = 0; i < valute.getLength(); i++) {
-      rates.add(createCurrency(valute.item(i)));
+      rates.add(createValute(valute.item(i)));
     }
+    exchageRateDto.setDate(dateCBRF);
+    exchageRateDto.setCurrencies(rates);
 
-    return rates;
+    return exchageRateDto;
   }
 
   private Document buildDocument(String url) {
@@ -62,8 +78,8 @@ public class CBRFSource implements CurrencyExchangeRateSource {
   }
 
 
-  private CurrencyDTO createCurrency(Node node) {
-    CurrencyDTO curency = new CurrencyDTO();
+  private CurrencyDto createValute(Node node) {
+    CurrencyDto curency = new CurrencyDto();
     if (node.getNodeType() == Node.ELEMENT_NODE) {
       curency.setCharCode(getValueTag(node, "CharCode"));
       curency.setNominal(Integer.parseInt(getValueTag(node, "Nominal")));
@@ -91,9 +107,10 @@ public class CBRFSource implements CurrencyExchangeRateSource {
   }
 
 
-//  private Double toParseDouble(String oldStr) {
-//    String newStr =  oldStr.replace(',', '.');
-//    return Double.parseDouble(newStr);
-//  }
+
+  private Double toParseDouble(String str) {
+    String newStr =  str.replace(',', '.');
+    return Double.parseDouble(str);
+  }
 
 }
