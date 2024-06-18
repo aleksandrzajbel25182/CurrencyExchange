@@ -40,53 +40,59 @@ public class Updater {
   private void update() {
     exchageRateDto = cbrfSource.get(LocalDate.now());
     listCurrencyId = new ArrayList<>();
-    updateCurrency(exchageRateDto);
+//    updateCurrency(exchageRateDto);
 //    updateExchageRate();
 
   }
 
   public void updateExchageRate() {
 
+
+    // Массив charcode
     List<String> arrayCharCode = exchageRateDto.getCurrencies().stream()
         .map(CurrencyDto::getCharCode)
         .collect(Collectors.toList());
-
+    // Массив integer  и хэшмап id -> объект ЦБ
     List<Integer> currencies = new ArrayList<>();
     for (String charCode : arrayCharCode) {
       int idCurrency = currenciesRepository.findCodeId(charCode);
       if (idCurrency != -1) {
         currencies.add(idCurrency);
-        hashMap.put(idCurrency, getCurrencyByCharCode(exchageRateDto , charCode));
+        hashMap.put(idCurrency, getCurrencyByCharCode(exchageRateDto, charCode));
       } else {
         //create
       }
     }
-    for(Integer id : currencies){
-      var targerRate = exchangeRateRepository.findByDate(id, Date.valueOf(exchageRateDto.getDate()));
-      if(targerRate.getRate().equals(hashMap.get(id).getValue())){
+
+    // Из базы извлекаешь по всем полученным id курсы валют за дату
+    var targetRate = exchangeRateRepository.findByDate(id, Date.valueOf(exchageRateDto.getDate()));
+
+    for (Integer id : currencies) {
+      var targerRate = exchangeRateRepository.findByDate(id,
+          Date.valueOf(exchageRateDto.getDate()));
+      if (targerRate.getRate().equals(hashMap.get(id).getValue())) {
 
       }
-
     }
 
 
   }
 
-  private void updateCurrency(ExchageRateDto exchageRateDto) {
-
-    for (CurrencyDto currencyDto : exchageRateDto.getCurrencies()) {
-
-      int idCurrency = currenciesRepository.findCodeId(currencyDto.getCharCode());
-      if (idCurrency != -1) {
-        //
-      } else {
-        Currency curency = new Currency();
-        curency.setCode(currencyDto.getCharCode());
-        curency.setFullName(currencyDto.getName());
-        currenciesRepository.create(curency);
-      }
-    }
-  }
+//  private void updateCurrency(ExchageRateDto exchageRateDto) {
+//
+//    for (CurrencyDto currencyDto : exchageRateDto.getCurrencies()) {
+//
+//      int idCurrency = currenciesRepository.findCodeId(currencyDto.getCharCode());
+//      if (idCurrency != -1) {
+//        //
+//      } else {
+//        Currency curency = new Currency();
+//        curency.setCode(currencyDto.getCharCode());
+//        curency.setFullName(currencyDto.getName());
+//        currenciesRepository.create(curency);
+//      }
+//    }
+//  }
 
   public static CurrencyDto getCurrencyByCharCode(ExchageRateDto dto, String charcode) {
     for (CurrencyDto currency : dto.getCurrencies()) {
