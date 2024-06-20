@@ -9,10 +9,27 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <properties>
+    <dotenv.version>3.0.0</dotenv.version>
+    <org.projectlombok.version>1.18.32</org.projectlombok.version>
+  </properties>
+
   <modules>
     <module>UpdateSource</module>
     <module>web-app</module>
   </modules>
+
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${org.projectlombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
 
 
   <build>

@@ -12,13 +12,12 @@ public class ConnectionPool {
 
   static {
     try {
-      Class.forName("org.postgresql.Driver");
-      config.setJdbcUrl("jdbc:postgresql://pgsql:5432/currencyExchangedb");
-      config.setUsername("postgres");
-      config.setPassword("root");
+      Class.forName(System.getenv("DATABASE_DRIVER"));
+      config.setJdbcUrl(System.getenv("DATABASE_URL"));
+      config.setUsername(System.getenv("DATABASE_USER"));
+      config.setPassword(System.getenv("DATABASE_PASSWORD"));
       config.setConnectionTimeout(50000);
       config.setMaximumPoolSize(10);
-
       dataSource = new HikariDataSource(config);
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
