@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javax.sql.DataSource;
 
@@ -18,7 +19,6 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
   private static final String GET_FIND_BY_ID = "SELECT id, charcode, fullName FROM currencies WHERE id = ?";
   private static final String GET_FIND_BY_CODE = "SELECT id, charcode,fullName FROM currencies WHERE charcode = ?";
 
-  public static final String GET_CHARCODE_ID = "SELECT id, FROM currencies WHERE charcode = ?";
   private static final String INSERT_CURRENCIES = "INSERT INTO currencies (code,fullname) VALUES(?,?) ";
 
   private static final String UPDATE_CURRENCY = "UPDATE currencies SET charcode = ? , fullname = ?  WHERE id = ?";
@@ -67,20 +67,36 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     return currency;
   }
 
-  public Integer findCodeId(String hasCode) {
+  public HashMap<Integer, String> currencuIds(List<String> values) {
+    HashMap<Integer, String> resultMap = new HashMap<>();
+    StringBuilder sql = new StringBuilder(
+        "SELECT id, charcode FROM currencies WHERE charcode IN (");
+
+    for (int i = 0; i < values.size(); i++) {
+      if (i > 0) {
+        sql.append(", ");
+      }
+      sql.append("?");
+    }
+    sql.append(")");
 
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(GET_CHARCODE_ID)) {
+        PreparedStatement statement = connection.prepareStatement(sql.toString())) {
 
-      statement.setString(1, hasCode);
+      for (int i = 0; i < values.size(); i++) {
+        statement.setString(i + 1, values.get(i));
+      }
+
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
-        return resultSet.getInt("id");
+        resultMap.put(
+            resultSet.getInt("id"),
+            resultSet.getString("charcode"));
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
-    return -1;
+    return resultMap;
   }
 
   public Currency findByCode(String hasCode) {
@@ -93,7 +109,6 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       if (resultSet.next()) {
         currency = createEntity(resultSet);
       }
-
 
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -117,6 +132,23 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
 
   }
 
+  public void createAll(List<Currency> entitys) {
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(INSERT_CURRENCIES)) {
+
+      for (var entity : entitys) {
+        statement.setString(1, entity.getCode());
+        statement.setString(2, entity.getFullName());
+        statement.addBatch();
+      }
+      statement.executeBatch();
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+  }
 
   @Override
   public void update(Currency entity) {
