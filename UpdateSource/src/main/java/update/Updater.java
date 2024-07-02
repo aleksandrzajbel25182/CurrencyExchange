@@ -9,101 +9,94 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import update.Source.CBRFSource;
+import update.Source.CurrencyExchangeRateSource;
 import update.dto.CurrencyDto;
 import update.dto.ExchageRateDto;
 
 public class Updater {
 
-  private CBRFSource cbrfSource;
+  private CurrencyExchangeRateSource source;
   private CurrenciesRepository currenciesRepository;
 
   private ExchangeRateRepository exchangeRateRepository;
 
-  private List<Integer> listCurrencyId;
+  private HashMap<Integer, CurrencyDto> currencyDtoHashMap;
 
-  private HashMap<Integer, CurrencyDto> hashMap;
-
+  private LocalDate date;
 
   private ExchageRateDto exchageRateDto;
 
-  public Updater() {
+  public Updater(DataSource dataSource, CurrencyExchangeRateSource source, LocalDate date) {
 
-    this.currenciesRepository = new CurrenciesRepository(null);
-    this.exchangeRateRepository = new ExchangeRateRepository(null);
-    this.cbrfSource = new CBRFSource();
-
+    this.currenciesRepository = new CurrenciesRepository(dataSource);
+    this.exchangeRateRepository = new ExchangeRateRepository(dataSource);
+    this.source = source;
+    this.date = date;
   }
 
   private void update() {
-    exchageRateDto = cbrfSource.get(LocalDate.now());
-    listCurrencyId = new ArrayList<>();
-//    updateCurrency(exchageRateDto);
-//    updateExchageRate();
+    exchageRateDto = source.get(date);
 
   }
 
   public void updateExchageRate() {
 
+    exchageRateDto = source.get(date);
 
-    // Массив charcode
-    List<String> arrayCharCode = exchageRateDto.getCurrencies().stream()
-        .map(CurrencyDto::getCharCode)
-        .collect(Collectors.toList());
-    // Массив integer  и хэшмап id -> объект ЦБ
-    List<Integer> currencies = new ArrayList<>();
-    for (String charCode : arrayCharCode) {
-      int idCurrency = currenciesRepository.findCodeId(charCode);
-      if (idCurrency != -1) {
-        currencies.add(idCurrency);
-        hashMap.put(idCurrency, getCurrencyByCharCode(exchageRateDto, charCode));
-      } else {
-        //create
+    // 1. Generate a charCode array
+    List<String> arrayCharCode = new ArrayList<>();
+    for (CurrencyDto curency : exchageRateDto.getCurrencies()) {
+      arrayCharCode.add(curency.getCharCode());
+    }
+
+    // 2. For this array, request currency identifiers from the database
+    HashMap<Integer, String> idsDataBase = currenciesRepository.currencuIds(arrayCharCode);
+
+    // If the list from the database is empty, then enter it in the database
+    if (idsDataBase.isEmpty()) {
+      insertCurrency(exchageRateDto.getCurrencies());
+    }
+
+    // 3. Generate a HashMap id -> ObjectSource
+    currencyDtoHashMap = new HashMap<>();
+
+    for (Map.Entry<Integer, String> entry : idsDataBase.entrySet()) {
+      String charCode = entry.getValue();
+      for (CurrencyDto currency : exchageRateDto.getCurrencies()) {
+        if (currency.getCharCode().equals(charCode)) {
+          currencyDtoHashMap.put(entry.getKey(), currency);
+          break;
+        }
       }
     }
 
-    // Из базы извлекаешь по всем полученным id курсы валют за дату
-    var targetRate = exchangeRateRepository.findByDate(id, Date.valueOf(exchageRateDto.getDate()));
 
-    for (Integer id : currencies) {
-      var targerRate = exchangeRateRepository.findByDate(id,
-          Date.valueOf(exchageRateDto.getDate()));
-      if (targerRate.getRate().equals(hashMap.get(id).getValue())) {
 
-      }
-    }
 
+    // 4. ...
 
   }
 
-//  private void updateCurrency(ExchageRateDto exchageRateDto) {
-//
-//    for (CurrencyDto currencyDto : exchageRateDto.getCurrencies()) {
-//
-//      int idCurrency = currenciesRepository.findCodeId(currencyDto.getCharCode());
-//      if (idCurrency != -1) {
-//        //
-//      } else {
-//        Currency curency = new Currency();
-//        curency.setCode(currencyDto.getCharCode());
-//        curency.setFullName(currencyDto.getName());
-//        currenciesRepository.create(curency);
-//      }
-//    }
-//  }
 
-  public static CurrencyDto getCurrencyByCharCode(ExchageRateDto dto, String charcode) {
-    for (CurrencyDto currency : dto.getCurrencies()) {
-      if (currency.getCharCode().equals(charcode)) {
-        return currency;
-      }
+  private void insertCurrency(List<CurrencyDto> currencies) {
 
+    Currency currency = new Currency();
+    List<Currency> newCurrencies = new ArrayList<>();
+    for (CurrencyDto entity : currencies) {
+      currency.setCode(entity.getCharCode());
+      currency.setFullName(entity.getName());
+      newCurrencies.add(currency);
     }
-    return null;
-  }
 
+    currenciesRepository.createAll(newCurrencies);
+
+  }
 
 }
 
