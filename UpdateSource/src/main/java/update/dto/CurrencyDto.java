@@ -1,5 +1,6 @@
 package update.dto;
 
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,5 +17,7 @@ public class CurrencyDto {
   private double value;
 
   private double vunitRate;
+
+  private LocalDate date;
 
 }
