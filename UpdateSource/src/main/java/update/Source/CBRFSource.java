@@ -24,19 +24,18 @@ public class CBRFSource implements CurrencyExchangeRateSource {
       = DateTimeFormatter.ofPattern("MM");
 
 
-
   @Override
   public ExchageRateDto get(LocalDate date) {
-    ExchageRateDto exchageRateDto  = new ExchageRateDto();
+    ExchageRateDto exchageRateDto = new ExchageRateDto();
     String day = date.format(dayOfMonthFormatter);
     String month = date.format(monthFormatter);
     int year = date.getYear();
-    final String URL = String.format("https://cbr.ru/scripts/XML_daily.asp?date_req=%s/%s/%d"
-        , day
-        , month
-        , year);
 
-    Document doc = buildDocument(URL);
+    Document doc = buildDocument(String.format(
+        "https://cbr.ru/scripts/XML_daily.asp?date_req=%s/%s/%d",
+        day,
+        month,
+        year));
 
     Node root = doc.getFirstChild();
 
@@ -46,16 +45,14 @@ public class CBRFSource implements CurrencyExchangeRateSource {
         .getNodeValue()
         .replace('.', '-');
 
-
-    LocalDate dateCBRF = LocalDate.parse(dateInString , DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+    LocalDate dateCBRF = LocalDate.parse(dateInString, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
     NodeList valute = doc.getElementsByTagName("Valute");
     List<CurrencyDto> rates = new ArrayList<>();
 
     for (int i = 0; i < valute.getLength(); i++) {
-      rates.add(createValute(valute.item(i)));
+      rates.add(createValute(valute.item(i), dateCBRF));
     }
-    exchageRateDto.setDate(dateCBRF);
     exchageRateDto.setCurrencies(rates);
 
     return exchageRateDto;
@@ -67,26 +64,23 @@ public class CBRFSource implements CurrencyExchangeRateSource {
       DocumentBuilder documentBuilder =
           DocumentBuilderFactory.newInstance().newDocumentBuilder();
       document = documentBuilder.parse(url);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    } catch (SAXException e) {
-      throw new RuntimeException(e);
-    } catch (ParserConfigurationException e) {
+    } catch (IOException | SAXException | ParserConfigurationException e) {
       throw new RuntimeException(e);
     }
     return document;
   }
 
 
-  private CurrencyDto createValute(Node node) {
+  private CurrencyDto createValute(Node node, LocalDate date) {
     CurrencyDto curency = new CurrencyDto();
+    curency.setDate(date);
     if (node.getNodeType() == Node.ELEMENT_NODE) {
       curency.setCharCode(getValueTag(node, "CharCode"));
       curency.setNominal(Integer.parseInt(getValueTag(node, "Nominal")));
       curency.setName(getValueTag(node, "Name"));
       curency.setValue(Double
           .parseDouble(getValueTag(node, "Value")
-          .replace(',', '.')));
+              .replace(',', '.')));
       curency.setVunitRate(Double
           .parseDouble(getValueTag(node, "VunitRate")
               .replace(',', '.')));
@@ -106,11 +100,9 @@ public class CBRFSource implements CurrencyExchangeRateSource {
     return value;
   }
 
-
-
-  private Double toParseDouble(String str) {
-    String newStr =  str.replace(',', '.');
-    return Double.parseDouble(str);
-  }
+//  private Double toParseDouble(String str) {
+//    String newStr = str.replace(',', '.');
+//    return Double.parseDouble(str);
+//  }
 
 }
