@@ -77,6 +77,12 @@
       <scope>runtime</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>23-ea+22</version>
+    </dependency>
+
   </dependencies>
 
 
@@ -124,13 +130,12 @@
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-maven-plugin</artifactId>
         <version>${flyway-maven-plugin.version}</version>
-<!--        <configuration>-->
-
-<!--          <url>${env.FL}</url>-->
-<!--          <driver>${env.DATABASE_DRIVER}</driver>-->
-<!--          <user>${env.DATABASE_USER}</user>-->
-<!--          <password>${env.DATABASE_PASSWORD}</password>-->
-<!--        </configuration>-->
+        <configuration>
+          <url>jdbc:postgresql://localhost:5432/currencyExchangedb</url>
+          <driver>org.postgresql.Driver</driver>
+          <user>postgres</user>
+          <password>root</password>
+        </configuration>
       </plugin>
 
     </plugins>
