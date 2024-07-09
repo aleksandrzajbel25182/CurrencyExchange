@@ -13,7 +13,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import update.dto.CurrencyDto;
 import update.dto.ExchageRateDto;
 
 public class CBRFSource implements CurrencyExchangeRateSource {
@@ -25,8 +24,8 @@ public class CBRFSource implements CurrencyExchangeRateSource {
 
 
   @Override
-  public ExchageRateDto get(LocalDate date) {
-    ExchageRateDto exchageRateDto = new ExchageRateDto();
+  public List<ExchageRateDto> get(LocalDate date) {
+    List<ExchageRateDto> exchageRateDto = new ArrayList<>();
     String day = date.format(dayOfMonthFormatter);
     String month = date.format(monthFormatter);
     int year = date.getYear();
@@ -46,14 +45,11 @@ public class CBRFSource implements CurrencyExchangeRateSource {
         .replace('.', '-');
 
     LocalDate dateCBRF = LocalDate.parse(dateInString, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-
     NodeList valute = doc.getElementsByTagName("Valute");
-    List<CurrencyDto> rates = new ArrayList<>();
 
     for (int i = 0; i < valute.getLength(); i++) {
-      rates.add(createValute(valute.item(i), dateCBRF));
+      exchageRateDto.add(createValute(valute.item(i), dateCBRF));
     }
-    exchageRateDto.setCurrencies(rates);
 
     return exchageRateDto;
   }
@@ -71,22 +67,22 @@ public class CBRFSource implements CurrencyExchangeRateSource {
   }
 
 
-  private CurrencyDto createValute(Node node, LocalDate date) {
-    CurrencyDto curency = new CurrencyDto();
-    curency.setDate(date);
+  private ExchageRateDto createValute(Node node, LocalDate date) {
+    ExchageRateDto exchageRate = new ExchageRateDto();
+    exchageRate.setDate(date);
     if (node.getNodeType() == Node.ELEMENT_NODE) {
-      curency.setCharCode(getValueTag(node, "CharCode"));
-      curency.setNominal(Integer.parseInt(getValueTag(node, "Nominal")));
-      curency.setName(getValueTag(node, "Name"));
-      curency.setValue(Double
+      exchageRate.setCharCode(getValueTag(node, "CharCode"));
+      exchageRate.setNominal(Integer.parseInt(getValueTag(node, "Nominal")));
+      exchageRate.setName(getValueTag(node, "Name"));
+      exchageRate.setValue(Double
           .parseDouble(getValueTag(node, "Value")
               .replace(',', '.')));
-      curency.setVunitRate(Double
+      exchageRate.setVunitRate(Double
           .parseDouble(getValueTag(node, "VunitRate")
               .replace(',', '.')));
 
     }
-    return curency;
+    return exchageRate;
   }
 
   private String getValueTag(Node nodeElement, String tag) {
