@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import javax.sql.DataSource;
@@ -67,12 +68,12 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     return currency;
   }
 
-  public HashMap<Integer, String> currencuIds(List<String> values) {
-    HashMap<Integer, String> resultMap = new HashMap<>();
+  public HashMap<String, Integer> getCurrenciesIdByCode(Collection<?> collection) {
+    HashMap<String, Integer> idByCodeMap = new HashMap<>();
     StringBuilder sql = new StringBuilder(
         "SELECT id, charcode FROM currencies WHERE charcode IN (");
 
-    for (int i = 0; i < values.size(); i++) {
+    for (int i = 0; i < collection.size(); i++) {
       if (i > 0) {
         sql.append(", ");
       }
@@ -83,20 +84,23 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(sql.toString())) {
 
-      for (int i = 0; i < values.size(); i++) {
-        statement.setString(i + 1, values.get(i));
+      int i = 1;
+      for (Object item : collection) {
+        statement.setString(i, item.toString());
+        i++;
       }
 
       ResultSet resultSet = statement.executeQuery();
-      if (resultSet.next()) {
-        resultMap.put(
-            resultSet.getInt("id"),
-            resultSet.getString("charcode"));
+      while (resultSet.next()) {
+        idByCodeMap.put(
+            resultSet.getString("charcode"),
+            resultSet.getInt("id"));
+
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
-    return resultMap;
+    return idByCodeMap;
   }
 
   public Currency findByCode(String hasCode) {
