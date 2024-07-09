@@ -1,32 +1,24 @@
 package update;
 
-import exchangerate.model.Currency;
-import exchangerate.model.ExchangeRate;
 import exchangerate.repository.CurrenciesRepository;
 import exchangerate.repository.ExchangeRateRepository;
-import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import javafx.util.Pair;
 import javax.sql.DataSource;
-import update.Source.CBRFSource;
 import update.Source.CurrencyExchangeRateSource;
-import update.dto.CurrencyDto;
 import update.dto.ExchageRateDto;
 
 public class Updater {
 
   private CurrencyExchangeRateSource source;
+
   private CurrenciesRepository currenciesRepository;
 
   private ExchangeRateRepository exchangeRateRepository;
-
-  private HashMap<Integer, CurrencyDto> currencyDtoHashMap;
 
   private LocalDate date;
 
@@ -41,62 +33,48 @@ public class Updater {
   }
 
   private void update() {
-    exchageRateDto = source.get(date);
-
+    List<ExchageRateDto> exchageRateDto = source.get(date);
   }
 
   public void updateExchageRate() {
 
-    exchageRateDto = source.get(date);
+    List<ExchageRateDto> exchageRates = source.get(date);
 
-    // 1. Generate a charCode array
-    List<String> arrayCharCode = new ArrayList<>();
-    for (CurrencyDto curency : exchageRateDto.getCurrencies()) {
-      arrayCharCode.add(curency.getCharCode());
+    // 1. Generate a charCode map
+    HashMap<String, ExchageRateDto> arrayCodeMap = new HashMap<>();
+    for (ExchageRateDto exchageRate : exchageRates) {
+      arrayCodeMap.put(exchageRate.getCharCode(), exchageRate);
     }
 
     // 2. For this array, request currency identifiers from the database
-    HashMap<Integer, String> idsDataBase = currenciesRepository.currencuIds(arrayCharCode);
+    //    String -charCode Integer - id
+    HashMap<String, Integer> idByCode = currenciesRepository.getCurrenciesIdByCode(
+        arrayCodeMap.keySet());
 
-    // If the list from the database is empty, then enter it in the database
-    if (idsDataBase.isEmpty()) {
-      insertCurrency(exchageRateDto.getCurrencies());
-    }
+    var exchangeRatesToUpdate = new ArrayList<Pair<Integer, ExchageRateDto>>();
+    var exchangeRatesToInsert = new ArrayList<ExchageRateDto>();
 
-    // 3. Generate a HashMap id -> ObjectSource
-    currencyDtoHashMap = new HashMap<>();
+    for (Map.Entry<String, Integer> entry : idByCode.entrySet()) {
+      ExchageRateDto currency = arrayCodeMap.get(entry.getKey());
 
-    for (Map.Entry<Integer, String> entry : idsDataBase.entrySet()) {
-      String charCode = entry.getValue();
-      for (CurrencyDto currency : exchageRateDto.getCurrencies()) {
-        if (currency.getCharCode().equals(charCode)) {
-          currencyDtoHashMap.put(entry.getKey(), currency);
-          break;
-        }
+      if (currency != null) {
+        exchangeRatesToUpdate.add(new Pair<>(entry.getValue(), currency));
+      } else {
+        exchangeRatesToInsert.add(currency);
       }
     }
 
+    for (Pair<Integer, ExchageRateDto> entry : exchangeRatesToUpdate) {
 
-
-
-    // 4. ...
-
-  }
-
-
-  private void insertCurrency(List<CurrencyDto> currencies) {
-
-    Currency currency = new Currency();
-    List<Currency> newCurrencies = new ArrayList<>();
-    for (CurrencyDto entity : currencies) {
-      currency.setCode(entity.getCharCode());
-      currency.setFullName(entity.getName());
-      newCurrencies.add(currency);
+      System.out.println(
+          "key/id: " + entry.getKey() + "\n" +
+              "CharCode : " + entry.getValue().getCharCode() + "\n" +
+              "Nominal : " + entry.getValue().getNominal() + "\n" +
+              "Date :" + entry.getValue().getDate()
+      );
     }
-
-    currenciesRepository.createAll(newCurrencies);
-
   }
+
 
 }
 
