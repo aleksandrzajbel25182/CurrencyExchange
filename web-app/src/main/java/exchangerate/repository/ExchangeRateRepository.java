@@ -35,7 +35,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       = "INSERT INTO exchangerates(basecurrencyid,targetcurrencyid,rate,date) VALUES(?,?,?,?) ";
 
   private static final String UPDATE_EXCHANGE_RATE
-      = "UPDATE exchangerates SET rate = ? WHERE id = ?";
+      = "UPDATE exchangerates SET rate = ? , date = ?   WHERE id = ?";
 
   public ExchangeRateRepository(DataSource dataSource) {
     this.dataSource = dataSource;
@@ -89,12 +89,12 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     return exchangeRate;
   }
 
-  public ExchangeRate findByDate(Integer targetCurrencyId, Date date){
+  public ExchangeRate findByDate(Integer targetCurrencyId, Date date) {
     ExchangeRate exchangeRate = null;
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(GET_ID_BY_DATE)) {
 
-    var target = currenciesRepository.findById(targetCurrencyId);
+      var target = currenciesRepository.findById(targetCurrencyId);
 
       statement.setInt(1, target.getId());
       statement.setDate(2, date);
@@ -120,9 +120,8 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       preparedStatement.setInt(1, entity.getBaseCurrencyId().getId());
       preparedStatement.setInt(2, entity.getTargetCurrencyId().getId());
       preparedStatement.setBigDecimal(3, entity.getRate());
+      preparedStatement.setDate(4, Date.valueOf(entity.getDate()));
       preparedStatement.executeUpdate();
-
-
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -135,8 +134,9 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_EXCHANGE_RATE)) {
 
-      preparedStatement.setInt(1, entity.getId());
-      preparedStatement.setBigDecimal(2, entity.getRate());
+      preparedStatement.setBigDecimal(1, entity.getRate());
+      preparedStatement.setDate(2, Date.valueOf(entity.getDate()));
+      preparedStatement.setInt(3, entity.getId());
       preparedStatement.executeUpdate();
 
 
@@ -157,24 +157,6 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
         preparedStatement.setInt(1, entity.getBaseCurrencyId().getId());
         preparedStatement.setInt(2, entity.getTargetCurrencyId().getId());
         preparedStatement.setBigDecimal(3, entity.getRate());
-        preparedStatement.addBatch();
-      }
-      preparedStatement.executeBatch();
-
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void updateAll(List<ExchangeRate> entitys) {
-
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_EXCHANGE_RATE)) {
-
-      for (var entity : entitys) {
-        preparedStatement.setInt(1, entity.getId());
-        preparedStatement.setBigDecimal(2, entity.getRate());
         preparedStatement.addBatch();
       }
       preparedStatement.executeBatch();

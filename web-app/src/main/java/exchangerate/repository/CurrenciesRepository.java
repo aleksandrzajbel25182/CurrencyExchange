@@ -20,7 +20,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
   private static final String GET_FIND_BY_ID = "SELECT id, charcode, fullName FROM currencies WHERE id = ?";
   private static final String GET_FIND_BY_CODE = "SELECT id, charcode,fullName FROM currencies WHERE charcode = ?";
 
-  private static final String INSERT_CURRENCIES = "INSERT INTO currencies (code,fullname) VALUES(?,?) ";
+  private static final String INSERT_CURRENCIES = "INSERT INTO currencies (charcode,fullname) VALUES(?,?) ";
 
   private static final String UPDATE_CURRENCY = "UPDATE currencies SET charcode = ? , fullname = ?  WHERE id = ?";
 
@@ -136,23 +136,6 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
 
   }
 
-  public void createAll(List<Currency> entitys) {
-
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(INSERT_CURRENCIES)) {
-
-      for (var entity : entitys) {
-        statement.setString(1, entity.getCode());
-        statement.setString(2, entity.getFullName());
-        statement.addBatch();
-      }
-      statement.executeBatch();
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-
-  }
 
   @Override
   public void update(Currency entity) {
