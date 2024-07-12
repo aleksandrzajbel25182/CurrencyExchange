@@ -71,6 +71,7 @@ public class CBRFSource implements CurrencyExchangeRateSource {
     ExchageRateDto exchageRate = new ExchageRateDto();
     exchageRate.setDate(date);
     if (node.getNodeType() == Node.ELEMENT_NODE) {
+      exchageRate.setBaseCurrency("RUB");
       exchageRate.setCharCode(getValueTag(node, "CharCode"));
       exchageRate.setNominal(Integer.parseInt(getValueTag(node, "Nominal")));
       exchageRate.setName(getValueTag(node, "Name"));
