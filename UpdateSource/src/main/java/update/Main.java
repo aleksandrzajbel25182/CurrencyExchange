@@ -20,8 +20,7 @@ public class Main {
 
   public static DataSource getDataSource() {
     DataSource dataSource = null;
-    // url
-    String url = "jdbc:postgresql://localhost:5432/currencyExchangedb";
+
     // User name
     String name = "postgres";
     // password
@@ -31,12 +30,6 @@ public class Main {
     try {
       //Загружаем драйвер
       Class.forName("org.postgresql.Driver");
-//      System.out.println("Драйвер подключен");
-//      //Создаём соединение
-//      dataSource
-//      dataSource.getConnection(DriverManager.getConnection(url, name, password));
-//      System.out.println("Соединение установлено");
-
       ds.setServerName( "localhost:5432" );
       ds.setDatabaseName( "currencyExchangedb" );
       ds.setUser(name);
