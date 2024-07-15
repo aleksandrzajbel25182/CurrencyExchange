@@ -50,8 +50,8 @@ public class Updater {
     HashMap<String, Integer> idByCode = currenciesRepository.getCurrenciesIdByCode(
         arrayCodeMap.keySet());
 
-    //To add currency pairs further, you need to add currencies to the database in the Currency table.
-    // Therefore, put the charCode and the name of the currency in a separate Hashmap
+    // 2.1 To add currency pairs further, you need to add currencies to the database in the Currency table.
+    //     Therefore, put the charCode and the name of the currency in a separate Hashmap
     var charCodeAndNameMap = new HashMap<String, String>();
     for (Map.Entry<String, ExchageRateDto> entry : arrayCodeMap.entrySet()) {
       if (!idByCode.containsKey(entry)) {
@@ -63,16 +63,18 @@ public class Updater {
       insertCurrencies(currenciesToInsertList);
     }
 
+    // 3. Extract the courses from the database according to the received ids for the date specified
+
     var exchangeRatesToUpdate = new ArrayList<Pair<Integer, ExchageRateDto>>();
     var exchangeRatesToInsert = new ArrayList<ExchageRateDto>();
 
-    for (Map.Entry<String, ExchageRateDto> entry : arrayCodeMap.entrySet()) {
-      ExchageRateDto exchageRateDto = entry.getValue();
-      if (idByCode.containsKey(exchageRateDto.getCharCode())) {
-        exchangeRatesToUpdate.add(
-            new Pair<>(idByCode.get(exchageRateDto.getCharCode()), exchageRateDto));
+    for (Map.Entry<String, Integer> entry : idByCode.entrySet()) {
+      var exchangeRateId = exchangeRateRepository.getByIdExchangeRate((entry.getValue()));
+
+      if (exchangeRateId != null) {
+        exchangeRatesToUpdate.add(new Pair<>(exchangeRateId, arrayCodeMap.get(entry.getKey())));
       } else {
-        exchangeRatesToInsert.add(exchageRateDto);
+        exchangeRatesToInsert.add(arrayCodeMap.get(entry.getKey()));
       }
     }
 

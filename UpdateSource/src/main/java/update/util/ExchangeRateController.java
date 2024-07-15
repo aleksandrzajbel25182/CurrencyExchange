@@ -41,13 +41,9 @@ public class ExchangeRateController implements ExchangeRateDtoToEntity<ExchangeR
     List<ExchangeRate> exchangeRates = new ArrayList<>();
 
     for (Pair<Integer, ExchageRateDto> entry : exchageRateDtoPair) {
-      var targetCurrency = currenciesRepository.findById(entry.getKey());
-      ExchangeRate exchangeRate = exchangeRateRepository.finByCode(
-          entry.getValue().getBaseCurrency(),
-          targetCurrency.getCode());
+      ExchangeRate exchangeRate = exchangeRateRepository.findById(entry.getKey());
       exchangeRate.setRate(BigDecimal.valueOf(entry.getValue().getValue()));
       exchangeRate.setDate(entry.getValue().getDate());
-
       exchangeRates.add(exchangeRate);
     }
 

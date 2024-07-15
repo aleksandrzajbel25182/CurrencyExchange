@@ -1,7 +1,6 @@
 package exchangerate.repository;
 
 import exchangerate.model.ExchangeRate;
-import exchangerate.repository.CurrenciesRepository;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
@@ -26,16 +25,25 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       + "FROM exchangerates "
       + "WHERE basecurrencyid = ? and targetcurrencyid =?";
 
+  private static final String GET_FIND_BY_ID
+      = "SELECT id,basecurrencyid, targetcurrencyid,rate,date "
+      + "FROM exchangerates "
+      + "WHERE id = ?";
   public static final String GET_ID_BY_DATE
       = "SELECT id,basecurrencyid, targetcurrencyid,rate,date"
       + "FROM exchangerates"
       + "WHERE targetcurrencyid = ? and date = ?";
 
+  private static final String GET_FIND_BY_ID_TARGERCURRENCY
+      = "SELECT id "
+      + "FROM exchangerates "
+      + "WHERE targetcurrencyid = ? ";
   private static final String INSERT_EXCHANGE_RATE
       = "INSERT INTO exchangerates(basecurrencyid,targetcurrencyid,rate,date) VALUES(?,?,?,?) ";
 
   private static final String UPDATE_EXCHANGE_RATE
       = "UPDATE exchangerates SET rate = ? , date = ?   WHERE id = ?";
+
 
   public ExchangeRateRepository(DataSource dataSource) {
     this.dataSource = dataSource;
@@ -64,8 +72,21 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
   @Override
   public ExchangeRate findById(int id) {
-    return null;
+    ExchangeRate exchangeRate = null;
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_ID)) {
+      statement.setInt(1, id);
+      ResultSet resultSet = statement.executeQuery();
+
+      if (resultSet.next()) {
+        exchangeRate = createEntity(resultSet);
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    return exchangeRate;
   }
+
 
   public ExchangeRate finByCode(String baseCurrency, String targetCurrency) {
     ExchangeRate exchangeRate = null;
@@ -147,26 +168,6 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
   }
 
-  public void createAll(List<ExchangeRate> entitys) {
-
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_EXCHANGE_RATE)) {
-
-      for (var entity : entitys) {
-
-        preparedStatement.setInt(1, entity.getBaseCurrencyId().getId());
-        preparedStatement.setInt(2, entity.getTargetCurrencyId().getId());
-        preparedStatement.setBigDecimal(3, entity.getRate());
-        preparedStatement.addBatch();
-      }
-      preparedStatement.executeBatch();
-
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
   @Override
   public void save(ExchangeRate entity) {
 
@@ -207,5 +208,22 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     } catch (SQLException e) {
       return null;
     }
+  }
+
+  public Integer getByIdExchangeRate(Integer id) {
+    Integer idExcnhageRate = null;
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_ID_TARGERCURRENCY)) {
+
+      statement.setInt(1, id);
+      ResultSet resultSet = statement.executeQuery();
+      while (resultSet.next()) {
+        idExcnhageRate = resultSet.getInt("id");
+
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    return idExcnhageRate;
   }
 }
