@@ -34,7 +34,7 @@ public class Main {
       ds.setDatabaseName( "currencyExchangedb" );
       ds.setUser(name);
       ds.setPassword(password);
-      System.out.println("Соединение установлено");
+      System.out.println("The connection is established");
       dataSource = ds;
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
