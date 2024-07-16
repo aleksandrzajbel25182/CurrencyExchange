@@ -151,17 +151,6 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       e.printStackTrace();
     }
   }
-
-  @Override
-  public void save(Currency entity) {
-
-  }
-
-  @Override
-  public void delete(Currency entity) {
-
-  }
-
   @Override
   public Currency createEntity(ResultSet resultSet) {
     try {

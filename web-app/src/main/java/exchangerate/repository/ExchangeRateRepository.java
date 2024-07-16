@@ -168,16 +168,6 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
   }
 
-  @Override
-  public void save(ExchangeRate entity) {
-
-  }
-
-  @Override
-  public void delete(ExchangeRate entity) {
-
-  }
-
   public boolean isEmpty() {
 
     try (Connection connection = dataSource.getConnection();
