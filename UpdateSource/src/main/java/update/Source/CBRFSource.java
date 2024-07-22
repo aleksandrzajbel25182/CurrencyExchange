@@ -1,6 +1,7 @@
 package update.Source;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -73,14 +74,7 @@ public class CBRFSource implements CurrencyExchangeRateSource {
     if (node.getNodeType() == Node.ELEMENT_NODE) {
       exchageRate.setBaseCurrency("RUB");
       exchageRate.setCharCode(getValueTag(node, "CharCode"));
-      exchageRate.setNominal(Integer.parseInt(getValueTag(node, "Nominal")));
-      exchageRate.setName(getValueTag(node, "Name"));
-      exchageRate.setValue(Double
-          .parseDouble(getValueTag(node, "Value")
-              .replace(',', '.')));
-      exchageRate.setVunitRate(Double
-          .parseDouble(getValueTag(node, "VunitRate")
-              .replace(',', '.')));
+      exchageRate.setValue(convertToValue(node));
 
     }
     return exchageRate;
@@ -97,9 +91,18 @@ public class CBRFSource implements CurrencyExchangeRateSource {
     return value;
   }
 
-//  private Double toParseDouble(String str) {
-//    String newStr = str.replace(',', '.');
-//    return Double.parseDouble(str);
-//  }
+  private Double convertToValue(Node node) {
+    Double value = Double.parseDouble(getValueTag(node, "Value")
+        .replace(',', '.'));
+    Integer nominal = Integer.parseInt(getValueTag(node, "Nominal"));
+    Double newValue = null;
+
+    if (nominal > 1) {
+      newValue = (1 / (value / nominal));
+    } else {
+      newValue = nominal / value;
+    }
+    return newValue;
+  }
 
 }
