@@ -80,8 +80,12 @@ public class ExchangeServlet extends HttpServlet {
     ExchangeRate exchangeRateRubToB = exchangeRateRepository.finByCode("RUB", to);
 
     if (exchangeRateRubToA != null && exchangeRateRubToB != null) {
-      return exchangeRateRubToA.getRate()
-          .divide(exchangeRateRubToB.getRate(), 2, RoundingMode.HALF_UP);
+
+      BigDecimal rateA = exchangeRateRubToA.getRate();
+      BigDecimal rateB = exchangeRateRubToB.getRate();
+      BigDecimal intermediateResult = rateA.divide(rateB, 2, RoundingMode.HALF_UP);
+      BigDecimal result = BigDecimal.ONE.divide(intermediateResult, 2, RoundingMode.HALF_UP);
+      return result;
     }
 
     return null;
