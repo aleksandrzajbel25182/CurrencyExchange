@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @WebServlet("/exchange")
 public class ExchangeServlet extends HttpServlet {
@@ -38,10 +39,10 @@ public class ExchangeServlet extends HttpServlet {
 
     String from = req.getParameter("from");
     String to = req.getParameter("to");
-    BigDecimal amount =  new BigDecimal(req.getParameter("amount"));
-    BigDecimal rate = getRate(from,to);
+    BigDecimal amount = new BigDecimal(req.getParameter("amount"));
+    BigDecimal rate = getRate(from, to);
 
-    if(rate == null){
+    if (rate == null) {
       resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Не существует курс обмена");
       return;
     }
@@ -70,7 +71,7 @@ public class ExchangeServlet extends HttpServlet {
     //    and count the reverse to get AB
     ExchangeRate reverseExchangeRate = exchangeRateRepository.finByCode(to, from);
     if (reverseExchangeRate != null) {
-      return new BigDecimal(1).divide(reverseExchangeRate.getRate());
+      return new BigDecimal(1).divide(reverseExchangeRate.getRate(), 2, RoundingMode.HALF_UP);
     }
 
     // 3. In the `ExchangeRates` table, there are currency pairs RUB-A and RUB-B
@@ -78,8 +79,9 @@ public class ExchangeServlet extends HttpServlet {
     ExchangeRate exchangeRateRubToA = exchangeRateRepository.finByCode("RUB", from);
     ExchangeRate exchangeRateRubToB = exchangeRateRepository.finByCode("RUB", to);
 
-    if(exchangeRateRubToA!=null && exchangeRateRubToB!=null){
-      return exchangeRateRubToA.getRate().divide(exchangeRateRubToB.getRate());
+    if (exchangeRateRubToA != null && exchangeRateRubToB != null) {
+      return exchangeRateRubToA.getRate()
+          .divide(exchangeRateRubToB.getRate(), 2, RoundingMode.HALF_UP);
     }
 
     return null;
