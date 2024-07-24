@@ -1,9 +1,7 @@
 package update;
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import io.github.cdimascio.dotenv.Dotenv;
 import java.time.LocalDate;
 import javax.sql.DataSource;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -20,20 +18,18 @@ public class Main {
 
   public static DataSource getDataSource() {
     DataSource dataSource = null;
-
-    // User name
-    String name = "postgres";
-    // password
-    String password = "root";
-    PGSimpleDataSource ds = new PGSimpleDataSource() ;
-
+    PGSimpleDataSource ds = new PGSimpleDataSource();
+    Dotenv dotenv = Dotenv.configure()
+        .directory("UpdateSource/")
+        .filename(".env")
+        .load();
     try {
       //Загружаем драйвер
-      Class.forName("org.postgresql.Driver");
-      ds.setServerName( "localhost:5432" );
-      ds.setDatabaseName( "currencyExchangedb" );
-      ds.setUser(name);
-      ds.setPassword(password);
+      Class.forName(dotenv.get("DATABASE_DRIVER"));
+      ds.setServerName(dotenv.get(("SERVER_NAME")));
+      ds.setDatabaseName(dotenv.get(("DATABASE_NAME")));
+      ds.setUser(dotenv.get(("DATABASE_USER")));
+      ds.setPassword(dotenv.get(("DATABASE_PASSWORD")));
       System.out.println("The connection is established");
       dataSource = ds;
     } catch (ClassNotFoundException e) {
