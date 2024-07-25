@@ -13,4 +13,6 @@ public interface CrudRepository<T> {
   void update(T entity);
 
   T createEntity(ResultSet resultSet);
+
+  void createBatch(List<T> entity);
 }

@@ -120,20 +120,33 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     return currency;
   }
 
+
   public void create(Currency entity) {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(INSERT_CURRENCIES)) {
-
       statement.setString(1, entity.getCode());
       statement.setString(2, entity.getFullName());
-
       statement.executeUpdate();
-
     } catch (SQLException e) {
       e.printStackTrace();
     }
 
+  }
+
+  @Override
+  public void createBatch(List<Currency> entities) {
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CURRENCIES)) {
+      for (Currency entity : entities) {
+        preparedStatement.setString(1, entity.getCode());
+        preparedStatement.setString(2, entity.getFullName());
+        preparedStatement.addBatch();
+      }
+      preparedStatement.executeBatch();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
 
@@ -145,12 +158,12 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       preparedStatement.setString(1, entity.getCode());
       preparedStatement.setString(2, entity.getFullName());
       preparedStatement.setInt(3, entity.getId());
-
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
       e.printStackTrace();
     }
   }
+
   @Override
   public Currency createEntity(ResultSet resultSet) {
     try {

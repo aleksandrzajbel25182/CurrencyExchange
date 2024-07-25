@@ -60,7 +60,7 @@ public class Updater {
     }
     if (charCodeAndNameMap.isEmpty()) {
       var currenciesToInsertList = currencyConverterToEntity.toEntity(charCodeAndNameMap);
-      insertCurrencies(currenciesToInsertList);
+      currenciesRepository.createBatch(currenciesToInsertList);
     }
 
     // 3. Extract the courses from the database according to the received ids for the date specified
@@ -85,9 +85,6 @@ public class Updater {
       exchangeRateRepository.update(entry);
     }
 
-//    System.out.println("Update complete");
-//    System.out.println("The exchange rate has been updated in the database successfully");
-
     // Make a check for an empty list
     if (exchangeRatesToInsert != null) {
       List<ExchangeRate> exchangeInsert = exchangeRateConverterToEntity.toEntity(
@@ -95,10 +92,6 @@ public class Updater {
       exchangeRateRepository.createBatch(exchangeInsert);
 
     }
-
-//    System.out.println("The addition is completed");
-//    System.out.println("The new exchange rate has been added to the database successfully");
-
   }
 
   private HashMap<String, ExchangeRateDto> getCharCodeMap(List<ExchangeRateDto> exchageRates) {
@@ -109,13 +102,5 @@ public class Updater {
     return arrayCodeMap;
   }
 
-  private void insertCurrencies(List<Currency> currenciesToUpdate) {
-    if (currenciesToUpdate != null) {
-      for (Currency currency : currenciesToUpdate) {
-        currenciesRepository.create(currency);
-      }
-    }
-//    System.out.println("New currencies have been successfully added");
-  }
 }
 
