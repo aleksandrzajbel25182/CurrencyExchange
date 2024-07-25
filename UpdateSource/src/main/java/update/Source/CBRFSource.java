@@ -49,7 +49,9 @@ public class CBRFSource implements CurrencyExchangeRateSource {
     NodeList valute = doc.getElementsByTagName("Valute");
 
     for (int i = 0; i < valute.getLength(); i++) {
-      exchageRateDto.add(createValute(valute.item(i), dateCBRF));
+      if (valute.item(i) != null) {
+        exchageRateDto.add(createExchangeRateDto(valute.item(i), dateCBRF));
+      }
     }
 
     return exchageRateDto;
@@ -68,7 +70,7 @@ public class CBRFSource implements CurrencyExchangeRateSource {
   }
 
 
-  private ExchageRateDto createValute(Node node, LocalDate date) {
+  private ExchageRateDto createExchangeRateDto(Node node, LocalDate date) {
     ExchageRateDto exchageRate = new ExchageRateDto();
     exchageRate.setDate(date);
     if (node.getNodeType() == Node.ELEMENT_NODE) {
