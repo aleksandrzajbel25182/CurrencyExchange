@@ -12,7 +12,7 @@ import java.util.Map;
 import javafx.util.Pair;
 import javax.sql.DataSource;
 import update.Source.CurrencyExchangeRateSource;
-import update.dto.ExchageRateDto;
+import update.dto.ExchangeRateDto;
 import update.util.CurrencyController;
 import update.util.ExchangeRateController;
 
@@ -40,10 +40,10 @@ public class Updater {
 
   public void updateExchageRate() {
 
-    List<ExchageRateDto> exchageRates = source.get(date);
+    List<ExchangeRateDto> exchageRates = source.get(date);
 
     // 1. Generate a charCode map
-    HashMap<String, ExchageRateDto> arrayCodeMap = getCharCodeMap(exchageRates);
+    HashMap<String, ExchangeRateDto> arrayCodeMap = getCharCodeMap(exchageRates);
 
     // 2. For this array, request currency identifiers from the database
     //    String -charCode Integer - id
@@ -53,7 +53,7 @@ public class Updater {
     // 2.1 To add currency pairs further, you need to add currencies to the database in the Currency table.
     //     Therefore, put the charCode and the name of the currency in a separate Hashmap
     var charCodeAndNameMap = new HashMap<String, String>();
-    for (Map.Entry<String, ExchageRateDto> entry : arrayCodeMap.entrySet()) {
+    for (Map.Entry<String, ExchangeRateDto> entry : arrayCodeMap.entrySet()) {
       if (!idByCode.containsKey(entry)) {
         charCodeAndNameMap.put(entry.getKey(), entry.getValue().getName());
       }
@@ -65,8 +65,8 @@ public class Updater {
 
     // 3. Extract the courses from the database according to the received ids for the date specified
 
-    var exchangeRatesToUpdate = new ArrayList<Pair<Integer, ExchageRateDto>>();
-    var exchangeRatesToInsert = new ArrayList<ExchageRateDto>();
+    var exchangeRatesToUpdate = new ArrayList<Pair<Integer, ExchangeRateDto>>();
+    var exchangeRatesToInsert = new ArrayList<ExchangeRateDto>();
 
     for (Map.Entry<String, Integer> entry : idByCode.entrySet()) {
       var exchangeRateId = exchangeRateRepository.getByIdExchangeRate((entry.getValue()));
@@ -100,10 +100,10 @@ public class Updater {
 
   }
 
-  private HashMap<String, ExchageRateDto> getCharCodeMap(List<ExchageRateDto> exchageRates) {
-    HashMap<String, ExchageRateDto> arrayCodeMap = new HashMap<>();
-    for (ExchageRateDto currency : exchageRates) {
-      arrayCodeMap.put(currency.getCharCode(), currency);
+  private HashMap<String, ExchangeRateDto> getCharCodeMap(List<ExchangeRateDto> exchageRates) {
+    HashMap<String, ExchangeRateDto> arrayCodeMap = new HashMap<>();
+    for (ExchangeRateDto currency : exchageRates) {
+      arrayCodeMap.put(currency.getTargetCurrencyCode(), currency);
     }
     return arrayCodeMap;
   }

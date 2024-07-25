@@ -1,7 +1,6 @@
 package update.Source;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import update.dto.ExchageRateDto;
+import update.dto.ExchangeRateDto;
 
 public class CBRFSource implements CurrencyExchangeRateSource {
 
@@ -25,8 +24,8 @@ public class CBRFSource implements CurrencyExchangeRateSource {
 
 
   @Override
-  public List<ExchageRateDto> get(LocalDate date) {
-    List<ExchageRateDto> exchageRateDto = new ArrayList<>();
+  public List<ExchangeRateDto> get(LocalDate date) {
+    List<ExchangeRateDto> exchangeRateDto = new ArrayList<>();
     String day = date.format(dayOfMonthFormatter);
     String month = date.format(monthFormatter);
     int year = date.getYear();
@@ -50,11 +49,11 @@ public class CBRFSource implements CurrencyExchangeRateSource {
 
     for (int i = 0; i < valute.getLength(); i++) {
       if (valute.item(i) != null) {
-        exchageRateDto.add(createExchangeRateDto(valute.item(i), dateCBRF));
+        exchangeRateDto.add(createExchangeRateDto(valute.item(i), dateCBRF));
       }
     }
 
-    return exchageRateDto;
+    return exchangeRateDto;
   }
 
   private Document buildDocument(String url) {
@@ -70,13 +69,13 @@ public class CBRFSource implements CurrencyExchangeRateSource {
   }
 
 
-  private ExchageRateDto createExchangeRateDto(Node node, LocalDate date) {
-    ExchageRateDto exchageRate = new ExchageRateDto();
+  private ExchangeRateDto createExchangeRateDto(Node node, LocalDate date) {
+    ExchangeRateDto exchageRate = new ExchangeRateDto();
     exchageRate.setDate(date);
     if (node.getNodeType() == Node.ELEMENT_NODE) {
-      exchageRate.setBaseCurrency("RUB");
-      exchageRate.setCharCode(getValueTag(node, "CharCode"));
-      exchageRate.setValue(convertToValue(node));
+      exchageRate.setBaseCurrencyCode("RUB");
+      exchageRate.setTargetCurrencyCode(getValueTag(node, "CharCode"));
+      exchageRate.setRate(convertToValue(node));
 
     }
     return exchageRate;

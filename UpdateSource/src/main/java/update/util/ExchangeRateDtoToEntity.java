@@ -1,11 +1,11 @@
 package update.util;
 
 import java.util.List;
-import update.dto.ExchageRateDto;
+import update.dto.ExchangeRateDto;
 
 public interface ExchangeRateDtoToEntity<T> {
 
-  List<T> toEntity(List<ExchageRateDto> exchageRateDto);
+  List<T> toEntity(List<ExchangeRateDto> exchangeRateDto);
 
 
 }
