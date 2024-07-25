@@ -48,7 +48,7 @@ public class CBRFSource implements CurrencyExchangeRateSource {
     NodeList valute = doc.getElementsByTagName("Valute");
 
     for (int i = 0; i < valute.getLength(); i++) {
-      if (valute.item(i) != null) {
+      if (valute.item(i).getNodeType() == Node.ELEMENT_NODE) {
         exchangeRateDto.add(createExchangeRateDto(valute.item(i), dateCBRF));
       }
     }
@@ -72,12 +72,10 @@ public class CBRFSource implements CurrencyExchangeRateSource {
   private ExchangeRateDto createExchangeRateDto(Node node, LocalDate date) {
     ExchangeRateDto exchageRate = new ExchangeRateDto();
     exchageRate.setDate(date);
-    if (node.getNodeType() == Node.ELEMENT_NODE) {
-      exchageRate.setBaseCurrencyCode("RUB");
-      exchageRate.setTargetCurrencyCode(getValueTag(node, "CharCode"));
-      exchageRate.setRate(convertToValue(node));
+    exchageRate.setBaseCurrencyCode("RUB");
+    exchageRate.setTargetCurrencyCode(getValueTag(node, "CharCode"));
+    exchageRate.setRate(convertToRate(node));
 
-    }
     return exchageRate;
   }
 
@@ -92,18 +90,20 @@ public class CBRFSource implements CurrencyExchangeRateSource {
     return value;
   }
 
-  private Double convertToValue(Node node) {
-    Double value = Double.parseDouble(getValueTag(node, "Value")
+  private Double convertToRate(Node node) {
+    Double rate = Double.parseDouble(getValueTag(node, "Value")
+        .replace(',', '.'));
+    Double unitRate = Double.parseDouble(getValueTag(node, "VunitRate")
         .replace(',', '.'));
     Integer nominal = Integer.parseInt(getValueTag(node, "Nominal"));
-    Double newValue = null;
+    Double convertToRate = null;
 
     if (nominal > 1) {
-      newValue = (1 / (value / nominal));
+      convertToRate = 1 / unitRate;
     } else {
-      newValue = nominal / value;
+      convertToRate = nominal / rate;
     }
-    return newValue;
+    return convertToRate;
   }
 
 }
