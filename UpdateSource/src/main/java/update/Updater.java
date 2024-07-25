@@ -92,9 +92,8 @@ public class Updater {
     if (exchangeRatesToInsert != null) {
       List<ExchangeRate> exchangeInsert = exchangeRateConverterToEntity.toEntity(
           exchangeRatesToInsert);
-      for (ExchangeRate entry : exchangeInsert) {
-        exchangeRateRepository.create(entry);
-      }
+      exchangeRateRepository.createBatch(exchangeInsert);
+
     }
 
 //    System.out.println("The addition is completed");

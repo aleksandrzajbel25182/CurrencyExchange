@@ -148,6 +148,25 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  public void createBatch(List<ExchangeRate> entities) {
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_EXCHANGE_RATE)) {
+      for(ExchangeRate entity: entities){
+        preparedStatement.setInt(1, entity.getBaseCurrencyId().getId());
+        preparedStatement.setInt(2, entity.getTargetCurrencyId().getId());
+        preparedStatement.setBigDecimal(3, entity.getRate());
+        preparedStatement.setDate(4, Date.valueOf(entity.getDate()));
+        preparedStatement.addBatch();
+      }
+      preparedStatement.executeBatch();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+
+
 
   @Override
   public void update(ExchangeRate entity) {
