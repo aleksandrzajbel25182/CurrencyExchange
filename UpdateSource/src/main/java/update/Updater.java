@@ -79,7 +79,8 @@ public class Updater {
     }
 
     // Converting Dto to Entity
-    List<ExchangeRate> exchangeToUpdate = exchangeRateConverterToEntity.toEntity(exchangeRatesToUpdate);
+    List<ExchangeRate> exchangeToUpdate = exchangeRateConverterToEntity.toEntity(
+        exchangeRatesToUpdate);
     for (ExchangeRate entry : exchangeToUpdate) {
       exchangeRateRepository.update(entry);
     }
@@ -89,7 +90,8 @@ public class Updater {
 
     // Make a check for an empty list
     if (exchangeRatesToInsert != null) {
-      List<ExchangeRate> exchangeInsert = exchangeRateConverterToEntity.toEntity(exchangeRatesToInsert);
+      List<ExchangeRate> exchangeInsert = exchangeRateConverterToEntity.toEntity(
+          exchangeRatesToInsert);
       for (ExchangeRate entry : exchangeInsert) {
         exchangeRateRepository.create(entry);
       }
@@ -102,8 +104,8 @@ public class Updater {
 
   private HashMap<String, ExchangeRateDto> getCharCodeMap(List<ExchangeRateDto> exchageRates) {
     HashMap<String, ExchangeRateDto> arrayCodeMap = new HashMap<>();
-    for (ExchangeRateDto currency : exchageRates) {
-      arrayCodeMap.put(currency.getTargetCurrencyCode(), currency);
+    for (ExchangeRateDto exchangeRate : exchageRates) {
+      arrayCodeMap.put(exchangeRate.getTargetCurrencyCode(), exchangeRate);
     }
     return arrayCodeMap;
   }
