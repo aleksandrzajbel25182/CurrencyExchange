@@ -10,13 +10,13 @@ import javafx.util.Pair;
 import javax.sql.DataSource;
 import update.dto.ExchangeRateDto;
 
-public class ExchangeRateController implements ExchangeRateDtoToEntity<ExchangeRate> {
+public class ExchangeRateConverterToEntity implements ExchangeRateDtoToEntity<ExchangeRate> {
 
   private CurrenciesRepository currenciesRepository;
 
   private ExchangeRateRepository exchangeRateRepository;
 
-  public ExchangeRateController(DataSource dataSource) {
+  public ExchangeRateConverterToEntity(DataSource dataSource) {
     this.currenciesRepository = new CurrenciesRepository(dataSource);
     this.exchangeRateRepository = new ExchangeRateRepository(dataSource);
   }
@@ -26,7 +26,7 @@ public class ExchangeRateController implements ExchangeRateDtoToEntity<ExchangeR
     List<ExchangeRate> exchangeRates = new ArrayList<>();
     for (ExchangeRateDto entry : exchangeRateDto) {
       var baseCurrencyiId = currenciesRepository.findByCode(entry.getBaseCurrencyCode());
-      var targetCurrencyId = currenciesRepository.findByCode(entry.getCharCode());
+      var targetCurrencyId = currenciesRepository.findByCode(entry.getTargetCurrencyCode());
       ExchangeRate exchangeRate = new ExchangeRate();
       exchangeRate.setBaseCurrencyId(baseCurrencyiId);
       exchangeRate.setTargetCurrencyId(targetCurrencyId);

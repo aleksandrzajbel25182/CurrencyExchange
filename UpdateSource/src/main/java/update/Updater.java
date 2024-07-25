@@ -13,8 +13,8 @@ import javafx.util.Pair;
 import javax.sql.DataSource;
 import update.Source.CurrencyExchangeRateSource;
 import update.dto.ExchangeRateDto;
-import update.util.CurrencyController;
-import update.util.ExchangeRateController;
+import update.util.CurrencyConverterToEntity;
+import update.util.ExchangeRateConverterToEntity;
 
 public class Updater {
 
@@ -26,12 +26,12 @@ public class Updater {
 
   private LocalDate date;
 
-  private ExchangeRateController exchangeRateController;
-  private CurrencyController currencyController;
+  private ExchangeRateConverterToEntity exchangeRateConverterToEntity;
+  private CurrencyConverterToEntity currencyConverterToEntity;
 
   public Updater(DataSource dataSource, CurrencyExchangeRateSource source, LocalDate date) {
-    this.currencyController = new CurrencyController();
-    this.exchangeRateController = new ExchangeRateController(dataSource);
+    this.currencyConverterToEntity = new CurrencyConverterToEntity();
+    this.exchangeRateConverterToEntity = new ExchangeRateConverterToEntity(dataSource);
     this.currenciesRepository = new CurrenciesRepository(dataSource);
     this.exchangeRateRepository = new ExchangeRateRepository(dataSource);
     this.source = source;
@@ -59,7 +59,7 @@ public class Updater {
       }
     }
     if (charCodeAndNameMap.isEmpty()) {
-      var currenciesToInsertList = currencyController.toEntity(charCodeAndNameMap);
+      var currenciesToInsertList = currencyConverterToEntity.toEntity(charCodeAndNameMap);
       insertCurrencies(currenciesToInsertList);
     }
 
@@ -79,7 +79,7 @@ public class Updater {
     }
 
     // Converting Dto to Entity
-    List<ExchangeRate> exchangeToUpdate = exchangeRateController.toEntity(exchangeRatesToUpdate);
+    List<ExchangeRate> exchangeToUpdate = exchangeRateConverterToEntity.toEntity(exchangeRatesToUpdate);
     for (ExchangeRate entry : exchangeToUpdate) {
       exchangeRateRepository.update(entry);
     }
@@ -89,7 +89,7 @@ public class Updater {
 
     // Make a check for an empty list
     if (exchangeRatesToInsert != null) {
-      List<ExchangeRate> exchangeInsert = exchangeRateController.toEntity(exchangeRatesToInsert);
+      List<ExchangeRate> exchangeInsert = exchangeRateConverterToEntity.toEntity(exchangeRatesToInsert);
       for (ExchangeRate entry : exchangeInsert) {
         exchangeRateRepository.create(entry);
       }

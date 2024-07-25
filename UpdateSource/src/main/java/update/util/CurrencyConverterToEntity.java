@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CurrencyController implements CurrencyMapToEntity<Currency> {
+public class CurrencyConverterToEntity implements CurrencyMapToEntity<Currency> {
 
   @Override
   public List<Currency> toEntity(HashMap<String, String> charCodeAndNameMap) {
