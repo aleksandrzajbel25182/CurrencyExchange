@@ -9,8 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
+import javafx.util.Pair;
+
 
 public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
@@ -181,7 +185,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_EXCHANGE_RATE)) {
-      for (ExchangeRate entity: entities) {
+      for (ExchangeRate entity : entities) {
         preparedStatement.setBigDecimal(1, entity.getRate());
         preparedStatement.setDate(2, Date.valueOf(entity.getDate()));
         preparedStatement.setInt(3, entity.getId());
@@ -209,18 +213,38 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
-  public Integer getByIdExchangeRate(Integer id) {
-    Integer idExcnhageRate = null;
+  public Map<Pair<Integer, Integer>, Integer> getExchangeRateIdsByPairs(
+      List<Pair<Integer, Integer>> listCharCodesPairs) {
+    Map<Pair<Integer, Integer>, Integer> existingPairs = new HashMap<>();
+
+    StringBuilder sql = new StringBuilder("SELECT id,basecurrencyid,targetcurrencyid "
+        + "FROM exchangerates "
+        + "WHERE (basecurrencyid, targetcurrencyid) "
+        + "IN(");
+
+    String[] arrayOfStrings = new String[listCharCodesPairs.size()];
+    for (int i = 0; i < listCharCodesPairs.size(); i++) {
+      arrayOfStrings[i] = "(?,?)";
+    }
+    sql.append(String.join(", ", arrayOfStrings));
+    sql.append(")");
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_ID_TARGERCURRENCY)) {
+        PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
 
-      statement.setInt(1, id);
-      ResultSet resultSet = statement.executeQuery();
-      while (resultSet.next()) {
-        idExcnhageRate = resultSet.getInt("id");
-
+      int parameterIndex = 1;
+      for (Pair<Integer, Integer> pairs : listCharCodesPairs) {
+        preparedStatement.setInt(parameterIndex++,pairs.getKey());
+        preparedStatement.setInt(parameterIndex++,pairs.getValue());
       }
-      return idExcnhageRate;
+      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        while (resultSet.next()) {
+          int id = resultSet.getInt("id");
+          int baseCharCode = resultSet.getInt("basecurrencyid");
+          int targetCharCode = resultSet.getInt("targetcurrencyid");
+          existingPairs.put(new Pair<>(baseCharCode, targetCharCode), id);
+        }
+        return existingPairs;
+      }
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

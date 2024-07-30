@@ -22,6 +22,7 @@
     <com.zaxxer.version>5.1.0</com.zaxxer.version>
     <org.slf4j.version>1.7.36</org.slf4j.version>
     <org.flywaydb.version>10.14.0</org.flywaydb.version>
+    <org.openjfx.version>17.0.2</org.openjfx.version>
 
     <!-- Plugins -->
     <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
@@ -81,6 +82,12 @@
       <groupId>io.github.cdimascio</groupId>
       <artifactId>dotenv-java</artifactId>
       <version>3.0.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>${org.openjfx.version}</version>
     </dependency>
 
   </dependencies>

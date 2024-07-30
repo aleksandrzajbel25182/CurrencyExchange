@@ -52,51 +52,50 @@ public class Updater {
 
     // 2.1 To add currency pairs further, you need to add currencies to the database in the Currency table.
     //     Therefore, put the charCode and the name of the currency in a separate Hashmap
-    var charCodeAndNameMap = new HashMap<String, String>();
+    var currencyToInsert = new HashMap<String, String>();
     for (Map.Entry<String, ExchangeRateDto> entry : arrayCodeMap.entrySet()) {
-      if (!idByCode.containsKey(entry)) {
-        charCodeAndNameMap.put(entry.getKey(), entry.getValue().getName());
+      if (!idByCode.containsKey(entry.getKey())) {
+        currencyToInsert.put(entry.getKey(), entry.getValue().getName());
       }
     }
-    if (charCodeAndNameMap.isEmpty()) {
-      var currenciesToInsertList = currencyConverterToEntity.toEntity(charCodeAndNameMap);
+    if (!currencyToInsert.isEmpty()) {
+      var currenciesToInsertList = currencyConverterToEntity.toEntity(currencyToInsert);
       currenciesRepository.createBatch(currenciesToInsertList);
     }
 
     // 3. Extract the courses from the database according to the received ids for the date specified
-
     var exchangeRatesToUpdate = new ArrayList<Pair<Integer, ExchangeRateDto>>();
     var exchangeRatesToInsert = new ArrayList<ExchangeRateDto>();
+    // 3.1 Creating a Map with currency pairs and ExchangeRateDto
+    Map<Pair<Integer, Integer>, ExchangeRateDto> pairsCharCodesMap = new HashMap<>();
+    for (ExchangeRateDto rate : exchageRates) {
+      int baseId = idByCode.get(rate.getBaseCurrencyCode());
+      int targetId = idByCode.get(rate.getTargetCurrencyCode());
+      pairsCharCodesMap.put(new Pair<>(baseId, targetId), rate);
+    }
+    // 3.2 Get a list of unique identifier pairs
+    List<Pair<Integer, Integer>> uniquePairs = new ArrayList<>(pairsCharCodesMap.keySet());
 
-    for (Map.Entry<String, Integer> entry : idByCode.entrySet()) {
-      var exchangeRateId = exchangeRateRepository.getByIdExchangeRate((entry.getValue()));
+    // 3.3 Getting existing currency pair identifiers from the database
+    Map<Pair<Integer, Integer>, Integer> existingPairsMap = exchangeRateRepository.getExchangeRateIdsByPairs(
+        uniquePairs);
 
-      if (exchangeRateId != null) {
-        exchangeRatesToUpdate.add(new Pair<>(exchangeRateId, arrayCodeMap.get(entry.getKey())));
+    // 4. Divide it into lists for updating and adding
+    for (Pair<Integer, Integer> pair : uniquePairs) {
+      if (existingPairsMap.containsKey(pair)) {
+        exchangeRatesToUpdate.add(
+            new Pair<>(existingPairsMap.get(pair),
+                pairsCharCodesMap.get(pair)));
       } else {
-        exchangeRatesToInsert.add(arrayCodeMap.get(entry.getKey()));
+        exchangeRatesToInsert.add(pairsCharCodesMap.get(pair));
       }
-    }
-
-    // Converting Dto to Entity
-    List<ExchangeRate> exchangeToUpdate = exchangeRateConverterToEntity.toEntity(
-        exchangeRatesToUpdate);
-    for (ExchangeRate entry : exchangeToUpdate) {
-      exchangeRateRepository.update(entry);
-    }
-
-    // Make a check for an empty list
-    if (exchangeRatesToInsert != null) {
-      List<ExchangeRate> exchangeInsert = exchangeRateConverterToEntity.toEntity(
-          exchangeRatesToInsert);
-      exchangeRateRepository.createBatch(exchangeInsert);
-
     }
   }
 
-  private HashMap<String, ExchangeRateDto> getCharCodeMap(List<ExchangeRateDto> exchageRates) {
+  private HashMap<String, ExchangeRateDto> getCharCodeMap(List<ExchangeRateDto> exchangeRates) {
     HashMap<String, ExchangeRateDto> arrayCodeMap = new HashMap<>();
-    for (ExchangeRateDto exchangeRate : exchageRates) {
+    for (ExchangeRateDto exchangeRate : exchangeRates) {
+      arrayCodeMap.put(exchangeRate.getBaseCurrencyCode(), exchangeRate);
       arrayCodeMap.put(exchangeRate.getTargetCurrencyCode(), exchangeRate);
     }
     return arrayCodeMap;
