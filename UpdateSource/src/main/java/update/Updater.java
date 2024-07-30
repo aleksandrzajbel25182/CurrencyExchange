@@ -90,6 +90,19 @@ public class Updater {
         exchangeRatesToInsert.add(pairsCharCodesMap.get(pair));
       }
     }
+
+    if (exchangeRatesToUpdate != null) {
+      List<ExchangeRate> exchangeToUpdate = exchangeRateConverterToEntity.toEntity(
+          exchangeRatesToUpdate);
+      exchangeRateRepository.updateBatch(exchangeToUpdate);
+    }
+    // Make a check for an empty list
+    if (exchangeRatesToInsert != null) {
+      List<ExchangeRate> exchangeInsert = exchangeRateConverterToEntity.toEntity(
+          exchangeRatesToInsert);
+      exchangeRateRepository.createBatch(exchangeInsert);
+
+    }
   }
 
   private HashMap<String, ExchangeRateDto> getCharCodeMap(List<ExchangeRateDto> exchangeRates) {
