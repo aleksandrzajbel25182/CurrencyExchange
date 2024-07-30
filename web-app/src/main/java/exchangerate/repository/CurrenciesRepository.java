@@ -1,12 +1,14 @@
 package exchangerate.repository;
 
 import exchangerate.model.Currency;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -80,12 +82,9 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     StringBuilder sql = new StringBuilder(
         "SELECT id, charcode FROM currencies WHERE charcode IN (");
 
-    for (int i = 0; i < collection.size(); i++) {
-      if (i > 0) {
-        sql.append(", ");
-      }
-      sql.append("?");
-    }
+    String[] arrayOfStrings = new String[collection.size()];
+    Arrays.fill(arrayOfStrings, "?");
+    sql.append(String.join(", ", arrayOfStrings));
     sql.append(")");
 
     try (Connection connection = dataSource.getConnection();

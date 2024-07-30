@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -223,9 +224,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
         + "IN(");
 
     String[] arrayOfStrings = new String[listCharCodesPairs.size()];
-    for (int i = 0; i < listCharCodesPairs.size(); i++) {
-      arrayOfStrings[i] = "(?,?)";
-    }
+    Arrays.fill(arrayOfStrings, "?");
     sql.append(String.join(", ", arrayOfStrings));
     sql.append(")");
     try (Connection connection = dataSource.getConnection();
@@ -233,8 +232,8 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
       int parameterIndex = 1;
       for (Pair<Integer, Integer> pairs : listCharCodesPairs) {
-        preparedStatement.setInt(parameterIndex++,pairs.getKey());
-        preparedStatement.setInt(parameterIndex++,pairs.getValue());
+        preparedStatement.setInt(parameterIndex++, pairs.getKey());
+        preparedStatement.setInt(parameterIndex++, pairs.getValue());
       }
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
         while (resultSet.next()) {
