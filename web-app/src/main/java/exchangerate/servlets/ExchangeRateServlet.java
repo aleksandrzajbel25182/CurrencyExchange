@@ -29,7 +29,8 @@ public class ExchangeRateServlet extends HttpServlet {
     var baseCurrency = currenciesCodes.substring(0, 3);
     var targetCurrency = currenciesCodes.substring(3, 6);
     PrintWriter writer = resp.getWriter();
-    var message = JsonConvert.jsonConvert(exchangeRateRepository.finByCode(baseCurrency, targetCurrency));
+    var message = JsonConvert.jsonConvert(
+        exchangeRateRepository.finByCode(baseCurrency, targetCurrency));
     writer.write(message);
   }
 
