@@ -1,4 +1,4 @@
-package exchangerate.utils;
+package exchangerate.service;
 
 import exchangerate.model.ExchangeRate;
 import exchangerate.repository.ExchangeRateRepository;

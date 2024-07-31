@@ -1,11 +1,9 @@
 package exchangerate.servlets;
 
-import com.fasterxml.jackson.databind.node.TextNode;
 import exchangerate.model.Exchange;
-import exchangerate.model.ExchangeRate;
 import exchangerate.repository.CurrenciesRepository;
 import exchangerate.repository.ExchangeRateRepository;
-import exchangerate.utils.ExchangeService;
+import exchangerate.service.ExchangeService;
 import exchangerate.utils.JsonConvert;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -16,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @WebServlet("/exchange")
 public class ExchangeServlet extends HttpServlet {
