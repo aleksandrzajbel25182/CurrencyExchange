@@ -224,7 +224,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
         + "IN(");
 
     String[] arrayOfStrings = new String[listCharCodesPairs.size()];
-    Arrays.fill(arrayOfStrings, "?");
+    Arrays.fill(arrayOfStrings, "(?,?)");
     sql.append(String.join(", ", arrayOfStrings));
     sql.append(")");
     try (Connection connection = dataSource.getConnection();
