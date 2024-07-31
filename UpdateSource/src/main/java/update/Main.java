@@ -30,8 +30,10 @@ public class Main {
       ds.setDatabaseName(dotenv.get(("DATABASE_NAME")));
       ds.setUser(dotenv.get(("DATABASE_USER")));
       ds.setPassword(dotenv.get(("DATABASE_PASSWORD")));
+      ds.setReWriteBatchedInserts(true);
       System.out.println("The connection is established");
       dataSource = ds;
+
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }

@@ -18,6 +18,7 @@ public class ConnectionPool {
       config.setPassword(System.getenv("DATABASE_PASSWORD"));
       config.setConnectionTimeout(50000);
       config.setMaximumPoolSize(10);
+      config.addDataSourceProperty("reWriteBatchedInserts " , true);
       dataSource = new HikariDataSource(config);
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
