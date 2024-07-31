@@ -20,11 +20,11 @@ public class Main {
     DataSource dataSource = null;
     PGSimpleDataSource ds = new PGSimpleDataSource();
     Dotenv dotenv = Dotenv.configure()
-        .directory("UpdateSource/")
+        .directory("./")
         .filename(".env")
         .load();
     try {
-      //Загружаем драйвер
+
       Class.forName(dotenv.get("DATABASE_DRIVER"));
       ds.setServerName(dotenv.get(("SERVER_NAME")));
       ds.setDatabaseName(dotenv.get(("DATABASE_NAME")));
