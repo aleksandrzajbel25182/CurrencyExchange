@@ -62,10 +62,16 @@ public class Updater {
       var currenciesToInsertList = currencyConverterToEntity.toEntity(currencyToInsert);
       currenciesRepository.createBatch(currenciesToInsertList);
     }
+    // 3. The way to use upsert
+    List<ExchangeRate> exchangeToUpdate = exchangeRateConverterToEntity.toEntity(
+        exchageRates);
+
+    exchangeRateRepository.upsert(exchangeToUpdate);
+
+    /* TODO Comment out block 3 and uncomment what's below if you don't want to use Upsert.
+        The block below is the second way to update and add currency pairs
 
     // 3. Extract the courses from the database according to the received ids for the date specified
-    var exchangeRatesToUpdate = new ArrayList<Pair<Integer, ExchangeRateDto>>();
-    var exchangeRatesToInsert = new ArrayList<ExchangeRateDto>();
     // 3.1 Creating a Map with currency pairs and ExchangeRateDto
     Map<Pair<Integer, Integer>, ExchangeRateDto> pairsCharCodesMap = new HashMap<>();
     for (ExchangeRateDto rate : exchageRates) {
@@ -81,6 +87,8 @@ public class Updater {
         uniquePairs);
 
     // 4. Divide it into lists for updating and adding
+    var exchangeRatesToUpdate = new ArrayList<Pair<Integer, ExchangeRateDto>>();
+    var exchangeRatesToInsert = new ArrayList<ExchangeRateDto>();
     for (Pair<Integer, Integer> pair : uniquePairs) {
       if (existingPairsMap.containsKey(pair)) {
         exchangeRatesToUpdate.add(
@@ -103,6 +111,8 @@ public class Updater {
       exchangeRateRepository.createBatch(exchangeInsert);
 
     }
+    */
+
   }
 
   private HashMap<String, ExchangeRateDto> getCharCodeMap(List<ExchangeRateDto> exchangeRates) {

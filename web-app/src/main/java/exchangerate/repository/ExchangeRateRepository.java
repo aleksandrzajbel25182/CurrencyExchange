@@ -40,10 +40,6 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       + "FROM exchangerates"
       + "WHERE targetcurrencyid = ? and date = ?";
 
-  private static final String GET_FIND_BY_ID_TARGERCURRENCY
-      = "SELECT id "
-      + "FROM exchangerates "
-      + "WHERE targetcurrencyid = ? ";
   private static final String INSERT_EXCHANGE_RATE
       = "INSERT INTO exchangerates(basecurrencyid,targetcurrencyid,rate,date) "
       + "VALUES(?,?,?,?) ";
@@ -198,6 +194,27 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  public void upsert(List<ExchangeRate> entities) {
+    StringBuilder sql = new StringBuilder(
+        "INSERT INTO exchangerates (basecurrencyid,targetcurrencyid,rate,date) "
+            + "VALUES (?,?,?,?) "
+            + "ON CONFLICT(basecurrencyid,targetcurrencyid) DO UPDATE "
+            + "SET rate = EXCLUDED.rate, date = EXCLUDED.date");
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
+
+      for (ExchangeRate entity : entities) {
+        preparedStatement.setInt(1, entity.getBaseCurrencyId().getId());
+        preparedStatement.setInt(2, entity.getTargetCurrencyId().getId());
+        preparedStatement.setBigDecimal(3, entity.getRate());
+        preparedStatement.setDate(4, Date.valueOf(entity.getDate()));
+        preparedStatement.addBatch();
+      }
+      preparedStatement.executeBatch();
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   @Override
   public ExchangeRate createEntity(ResultSet resultSet) {
