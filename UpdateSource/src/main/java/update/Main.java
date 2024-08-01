@@ -10,7 +10,6 @@ import update.Source.CBRFSource;
 public class Main {
 
   public static void main(String[] args) {
-
     CBRFSource cbrfSource = new CBRFSource();
     Updater updater = new Updater(getDataSource(), cbrfSource, LocalDate.now());
     updater.updateExchageRate();
@@ -33,12 +32,9 @@ public class Main {
       ds.setReWriteBatchedInserts(true);
       System.out.println("The connection is established");
       dataSource = ds;
-
+      return dataSource;
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
-
-    return dataSource;
   }
-
 }
