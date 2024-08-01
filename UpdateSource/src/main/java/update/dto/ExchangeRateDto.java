@@ -1,51 +1,59 @@
+/*
+ * ExchangeRateDto.java        1.0 2024/08/01
+ */
 package update.dto;
 
 import java.time.LocalDate;
+
 import lombok.Getter;
 import lombok.Setter;
 
-
+/**
+ * A data transfer object representing exchange rate information between two currencies. Contains
+ * details such as base currency code, target currency code, nominal value, currency name, exchange
+ * rate value, unit rate, and date of the exchange rate.
+ * <p>
+ * This class is used to encapsulate exchange rate data fetched from various sources.
+ *
+ * @author Александр Зайбель
+ * @version 1.0
+ */
 @Getter
 @Setter
-/**
- * A class of currency pairs consisting of the base currency ,
- * the target currency and their exchange rate at face value
- * ExchangerRateDto accepts data from different sources.
- * */
 public class ExchangeRateDto {
 
   /**
-   * @value baseCurrencyCode - ISO Character code of the base currency
+   * ISO Character code of the base currency.
    */
   private String baseCurrencyCode;
 
   /**
-   * @value targetCurrencyCode - ISO Character code of the target currency
+   * ISO Character code of the target currency
    */
   private String targetCurrencyCode;
 
   /**
-   * @value nominal - The currency of the nominal value
+   * Nominal value of the currency.
    */
   private int nominal;
 
   /**
-   * @value name - Name of the currency
+   * Name of the currency
    */
   private String name;
 
   /**
-   * @value rate - The rate for 1 unit of currency
+   * The value of the exchange rate
    */
   private double rate;
 
   /**
-   * @value vunitRate - The rate for 1 unit of currency
+   * The rate for 1 unit of currency
    */
   private double vunitRate;
 
   /**
-   * @value date - Date on the exchange rate
+   * Date associated with the exchange rate.
    */
   private LocalDate date;
 
