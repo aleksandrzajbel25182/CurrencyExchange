@@ -198,7 +198,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     StringBuilder sql = new StringBuilder(
         "INSERT INTO exchangerates (basecurrencyid,targetcurrencyid,rate,date) "
             + "VALUES (?,?,?,?) "
-            + "ON CONFLICT(basecurrencyid,targetcurrencyid) DO UPDATE "
+            + "ON CONFLICT(basecurrencyid,targetcurrencyid,date) DO UPDATE "
             + "SET rate = EXCLUDED.rate, date = EXCLUDED.date");
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
