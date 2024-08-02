@@ -1,7 +1,6 @@
 package exchangerate.repository;
 
 import exchangerate.model.Currency;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -147,6 +146,26 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       preparedStatement.executeBatch();
     } catch (SQLException e) {
       e.printStackTrace();
+    }
+  }
+
+  public void upsert(List<Currency> entities) {
+    StringBuilder sql = new StringBuilder(
+        "INSERT INTO currencies (charcode,fullname) "
+            + "VALUES (?,?) "
+            + "ON CONFLICT(charcode) DO UPDATE "
+            + "SET charcode = EXCLUDED.charcode, fullname = EXCLUDED.fullname");
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
+
+      for (Currency currency : entities) {
+        preparedStatement.setString(1, currency.getCode());
+        preparedStatement.setString(2, currency.getFullName());
+        preparedStatement.addBatch();
+      }
+      preparedStatement.executeBatch();
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
     }
   }
 
