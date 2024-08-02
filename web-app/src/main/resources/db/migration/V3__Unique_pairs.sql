@@ -1,1 +1,0 @@
-ALTER TABLE exchangerates add constraint unique_pairs unique(basecurrencyid,targetcurrencyid);
