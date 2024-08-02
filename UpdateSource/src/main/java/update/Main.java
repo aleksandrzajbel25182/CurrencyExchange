@@ -9,21 +9,23 @@ import update.Source.CBRFSource;
 
 public class Main {
 
+  private static Dotenv dotenv;
+
   public static void main(String[] args) {
+    dotenv = Dotenv.configure()
+        .directory("./")
+        .filename(".env")
+        .load();
     CBRFSource cbrfSource = new CBRFSource();
-    Updater updater = new Updater(getDataSource(), cbrfSource, LocalDate.now());
+    boolean featureFlag = Boolean.parseBoolean(dotenv.get("DB_SUPPORTS_UPSERT"));
+    Updater updater = new Updater(getDataSource(), cbrfSource, LocalDate.now(), featureFlag);
     updater.updateExchageRate();
   }
 
   public static DataSource getDataSource() {
     DataSource dataSource = null;
     PGSimpleDataSource ds = new PGSimpleDataSource();
-    Dotenv dotenv = Dotenv.configure()
-        .directory("./")
-        .filename(".env")
-        .load();
     try {
-
       Class.forName(dotenv.get("DATABASE_DRIVER"));
       ds.setServerName(dotenv.get(("SERVER_NAME")));
       ds.setDatabaseName(dotenv.get(("DATABASE_NAME")));

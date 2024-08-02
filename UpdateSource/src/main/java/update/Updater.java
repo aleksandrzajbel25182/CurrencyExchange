@@ -4,6 +4,7 @@ import exchangerate.model.Currency;
 import exchangerate.repository.CurrenciesRepository;
 import exchangerate.repository.ExchangeRateRepository;
 import exchangerate.model.ExchangeRate;
+import io.github.cdimascio.dotenv.Dotenv;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,20 +28,27 @@ public class Updater {
   private LocalDate date;
 
   private ExchangeRateConverterToEntity exchangeRateConverterToEntity;
+
   private CurrencyConverterToEntity currencyConverterToEntity;
 
-  public Updater(DataSource dataSource, CurrencyExchangeRateSource source, LocalDate date) {
+  private boolean featureFlag;
+  public Updater(DataSource dataSource, CurrencyExchangeRateSource source, LocalDate date,
+      boolean featureFlag) {
     this.currencyConverterToEntity = new CurrencyConverterToEntity();
     this.exchangeRateConverterToEntity = new ExchangeRateConverterToEntity(dataSource);
     this.currenciesRepository = new CurrenciesRepository(dataSource);
     this.exchangeRateRepository = new ExchangeRateRepository(dataSource);
     this.source = source;
     this.date = date;
+    this.featureFlag = featureFlag;
   }
 
   public void updateExchageRate() {
-
     List<ExchangeRateDto> exchangeRateDto = source.get(date);
+    if (!featureFlag) {
+      baseUpdate(exchangeRateDto);
+      return;
+    }
     HashMap<String, String> charCodeAndNameMap = new HashMap<>();
     for (ExchangeRateDto exchangeRate : exchangeRateDto) {
       charCodeAndNameMap.put(exchangeRate.getBaseCurrencyCode(), exchangeRate.getName());
@@ -51,12 +59,11 @@ public class Updater {
 
     List<ExchangeRate> exchangeToUpdate = exchangeRateConverterToEntity.toEntity(exchangeRateDto);
     exchangeRateRepository.upsert(exchangeToUpdate);
+  }
 
-    // TODO Below is an implementation of the algorithm without using UPSERT.
-
-    /* The algorithm for updating and adding without using upsert
+  private void baseUpdate(List<ExchangeRateDto> exchangeRates) {
     // 1. Generate a charCode map
-    HashMap<String, ExchangeRateDto> arrayCodeMap = getCharCodeMap(exchageRates);
+    HashMap<String, ExchangeRateDto> arrayCodeMap = getCharCodeMap(exchangeRates);
 
     // 2. For this array, request currency identifiers from the database
     //    String -charCode Integer - id
@@ -78,7 +85,7 @@ public class Updater {
     // 3. Extract the courses from the database according to the received ids for the date specified
     // 3.1 Creating a Map with currency pairs and ExchangeRateDto
     Map<Pair<Integer, Integer>, ExchangeRateDto> pairsCharCodesMap = new HashMap<>();
-    for (ExchangeRateDto rate : exchageRates) {
+    for (ExchangeRateDto rate : exchangeRates) {
       int baseId = idByCode.get(rate.getBaseCurrencyCode());
       int targetId = idByCode.get(rate.getTargetCurrencyCode());
       pairsCharCodesMap.put(new Pair<>(baseId, targetId), rate);
@@ -102,7 +109,6 @@ public class Updater {
         exchangeRatesToInsert.add(pairsCharCodesMap.get(pair));
       }
     }
-
     if (exchangeRatesToUpdate != null) {
       List<ExchangeRate> exchangeToUpdate = exchangeRateConverterToEntity.toEntity(
           exchangeRatesToUpdate);
@@ -113,10 +119,7 @@ public class Updater {
       List<ExchangeRate> exchangeInsert = exchangeRateConverterToEntity.toEntity(
           exchangeRatesToInsert);
       exchangeRateRepository.createBatch(exchangeInsert);
-
     }
-    */
-
   }
 
   private HashMap<String, ExchangeRateDto> getCharCodeMap(List<ExchangeRateDto> exchangeRates) {
