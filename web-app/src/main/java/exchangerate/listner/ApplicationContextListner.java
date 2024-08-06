@@ -1,7 +1,8 @@
 package exchangerate.listner;
 
-import exchangerate.repository.CurrenciesRepository;
-import exchangerate.repository.ExchangeRateRepository;
+
+import com.repository.CurrenciesRepository;
+import com.repository.ExchangeRateRepository;
 import exchangerate.utils.ConnectionPool;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;

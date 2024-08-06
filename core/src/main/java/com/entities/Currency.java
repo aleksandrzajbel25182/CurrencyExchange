@@ -1,4 +1,4 @@
-package exchangerate.model;
+package com.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

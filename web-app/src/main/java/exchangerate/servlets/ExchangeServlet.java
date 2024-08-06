@@ -1,8 +1,8 @@
 package exchangerate.servlets;
 
-import exchangerate.model.Exchange;
-import exchangerate.repository.CurrenciesRepository;
-import exchangerate.repository.ExchangeRateRepository;
+import com.entities.Exchange;
+import com.repository.CurrenciesRepository;
+import com.repository.ExchangeRateRepository;
 import exchangerate.service.ExchangeService;
 import exchangerate.utils.JsonConvert;
 import jakarta.servlet.ServletConfig;

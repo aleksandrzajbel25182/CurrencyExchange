@@ -15,8 +15,9 @@
   </properties>
 
   <modules>
-    <module>UpdateSource</module>
+    <module>updateSource-app</module>
     <module>web-app</module>
+    <module>core</module>
   </modules>
 
 

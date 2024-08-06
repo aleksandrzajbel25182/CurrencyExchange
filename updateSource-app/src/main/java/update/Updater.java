@@ -1,10 +1,9 @@
 package update;
 
-import exchangerate.model.Currency;
-import exchangerate.repository.CurrenciesRepository;
-import exchangerate.repository.ExchangeRateRepository;
-import exchangerate.model.ExchangeRate;
-import io.github.cdimascio.dotenv.Dotenv;
+import com.entities.Currency;
+import com.entities.ExchangeRate;
+import com.repository.CurrenciesRepository;
+import com.repository.ExchangeRateRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import javafx.util.Pair;
 import javax.sql.DataSource;
-import update.Source.CurrencyExchangeRateSource;
+import update.source.CurrencyExchangeRateSource;
 import update.dto.ExchangeRateDto;
 import update.util.CurrencyConverterToEntity;
 import update.util.ExchangeRateConverterToEntity;

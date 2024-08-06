@@ -1,4 +1,4 @@
-package exchangerate.model;
+package com.entities;
 
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;

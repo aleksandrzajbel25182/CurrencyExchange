@@ -1,7 +1,8 @@
 package exchangerate.service;
 
-import exchangerate.model.ExchangeRate;
-import exchangerate.repository.ExchangeRateRepository;
+
+import com.entities.ExchangeRate;
+import com.repository.ExchangeRateRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 

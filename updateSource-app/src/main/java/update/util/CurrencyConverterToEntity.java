@@ -1,6 +1,6 @@
 package update.util;
 
-import exchangerate.model.Currency;
+import com.entities.Currency;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

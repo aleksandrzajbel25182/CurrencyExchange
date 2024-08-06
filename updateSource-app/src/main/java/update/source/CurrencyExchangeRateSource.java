@@ -1,7 +1,7 @@
 /*
  * CurrencyExchangeRateSource.java        1.0 2024/08/01
  */
-package update.Source;
+package update.source;
 
 import java.time.LocalDate;
 

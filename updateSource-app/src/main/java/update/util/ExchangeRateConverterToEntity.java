@@ -1,8 +1,8 @@
 package update.util;
 
-import exchangerate.model.ExchangeRate;
-import exchangerate.repository.CurrenciesRepository;
-import exchangerate.repository.ExchangeRateRepository;
+import com.entities.ExchangeRate;
+import com.repository.CurrenciesRepository;
+import com.repository.ExchangeRateRepository;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
