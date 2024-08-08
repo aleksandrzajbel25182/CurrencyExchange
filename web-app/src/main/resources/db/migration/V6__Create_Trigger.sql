@@ -1,6 +1,6 @@
 CREATE FUNCTION update_subscription()
     RETURNS TRIGGER AS
-    $$
+$$
 BEGIN
 UPDATE subscriptions
 SET status = 'не отправлено',
