@@ -3,6 +3,7 @@ package exchangerate.listner;
 
 import com.repository.CurrenciesRepository;
 import com.repository.ExchangeRateRepository;
+import com.repository.SubscriptionsRepository;
 import exchangerate.utils.ConnectionPool;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
@@ -31,10 +32,10 @@ public class ApplicationContextListner implements ServletContextListener {
     ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(dataSource);
     context.setAttribute("exchangeRateRepository", exchangeRateRepository);
 
-//    UpdateDb updateDb = new UpdateDb(dataSource);
-//    updateDb.updateExchangeRate();
+    SubscriptionsRepository subscriptionsRepository = new SubscriptionsRepository(dataSource);
+    context.setAttribute("subscriptionsRepository", subscriptionsRepository);
 
-    System.out.println("contextInitialized listner");
+    System.out.println("ContextInitialized listner");
 
   }
 
