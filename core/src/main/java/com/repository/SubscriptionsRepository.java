@@ -36,9 +36,15 @@ public class SubscriptionsRepository {
     currenciesRepository = new CurrenciesRepository(dataSource);
   }
 
-  public void create(Subscriptions entity) {
+  public void upsert(Subscriptions entity) {
+
+    StringBuilder sql = new StringBuilder(
+        "INSERT INTO subscriptions (url,basecurrencyid,targetcurrencyid,rate,date,status) "
+            + "VALUES (?,?,?,?,?,?) "
+            + "ON CONFLICT(url,basecurrencyid,targetcurrencyid) DO UPDATE "
+            + "SET rate = EXCLUDED.rate, date = EXCLUDED.date");
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SUBSCRIPTIONS)) {
+        PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
       preparedStatement.setString(1, entity.getUrl());
       preparedStatement.setInt(2, entity.getBaseCurrencyId().getId());
       preparedStatement.setInt(3, entity.getTargetCurrencyId().getId());
