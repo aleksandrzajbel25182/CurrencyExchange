@@ -4,7 +4,7 @@ import com.entities.Subscriptions;
 import com.repository.CurrenciesRepository;
 import com.repository.ExchangeRateRepository;
 import com.repository.SubscriptionsRepository;
-import exchangerate.utils.JsonConvert;
+import com.util.JsonConvert;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

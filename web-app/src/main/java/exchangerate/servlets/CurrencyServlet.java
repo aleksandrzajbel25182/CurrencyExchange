@@ -1,7 +1,7 @@
 package exchangerate.servlets;
 
 import com.repository.CurrenciesRepository;
-import exchangerate.utils.JsonConvert;
+import com.util.JsonConvert;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
