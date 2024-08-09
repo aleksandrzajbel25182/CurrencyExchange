@@ -1,6 +1,8 @@
 package update;
 
 
+import com.interfaces.NotificationSender;
+import com.services.NotificationSenderService;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.time.LocalDate;
 import javax.sql.DataSource;
@@ -21,6 +23,8 @@ public class Main {
     boolean featureFlag = Boolean.parseBoolean(dotenv.get("DB_SUPPORTS_UPSERT"));
     Updater updater = new Updater(getDataSource(), cbrfSource, LocalDate.now(), featureFlag);
     updater.updateExchageRate();
+    NotificationSender notificationSender = new NotificationSenderService(getDataSource());
+    notificationSender.send();
   }
 
   public static DataSource getDataSource() {
