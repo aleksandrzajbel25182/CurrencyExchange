@@ -1,4 +1,4 @@
-package exchangerate.utils;
+package com.util;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
