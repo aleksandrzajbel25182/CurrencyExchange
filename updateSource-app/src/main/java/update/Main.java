@@ -14,17 +14,25 @@ public class Main {
 
   private static Dotenv dotenv;
 
+  private static DataSource dataSource;
+
   public static void main(String[] args) {
     dotenv = Dotenv.configure()
         .directory("./")
         .filename(".env")
         .load();
+    dataSource = getDataSource();
     CBRFSource cbrfSource = new CBRFSource();
     boolean featureFlag = Boolean.parseBoolean(dotenv.get("DB_SUPPORTS_UPSERT"));
-    Updater updater = new Updater(getDataSource(), cbrfSource, LocalDate.now(), featureFlag);
+
+    Updater updater = new Updater(dataSource, cbrfSource, LocalDate.now(), featureFlag);
     updater.updateExchageRate();
-    NotificationSender notificationSender = new NotificationSenderService(getDataSource());
+    System.out.println("The database has been updated");
+
+    NotificationSender notificationSender = new NotificationSenderService(dataSource);
     notificationSender.send();
+    System.out.println("Notification sent");
+
   }
 
   public static DataSource getDataSource() {
