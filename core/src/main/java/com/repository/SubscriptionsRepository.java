@@ -25,7 +25,7 @@ public class SubscriptionsRepository {
   private static final String GET_SUBSCRIPTIONS_STATUS
       = "SELECT * "
       + "FROM subscriptions "
-      + "WHERE status = \"не отправлено\" ";
+      + "WHERE status = 'не отправлено' ";
 
   private static final String INSERT_SUBSCRIPTIONS
       = "INSERT INTO subscriptions (url,basecurrencyid,targetcurrencyid,rate,date,status) "
