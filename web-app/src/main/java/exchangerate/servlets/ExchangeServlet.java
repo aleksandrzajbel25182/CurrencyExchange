@@ -44,7 +44,7 @@ public class ExchangeServlet extends HttpServlet {
     BigDecimal rate = exchangeService.getRate(from, to);
 
     if (rate == null) {
-      resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Не существует курс обмена");
+      resp.sendError(HttpServletResponse.SC_NOT_FOUND, "There is no exchange rate");
       return;
     }
     Exchange exchange = new Exchange(

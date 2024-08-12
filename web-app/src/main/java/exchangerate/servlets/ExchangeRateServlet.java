@@ -1,5 +1,6 @@
 package exchangerate.servlets;
 
+import com.entities.ExchangeRate;
 import com.repository.ExchangeRateRepository;
 import com.util.JsonConvert;
 import jakarta.servlet.ServletConfig;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Optional;
 
 @WebServlet("/exchangeRates/*")
 public class ExchangeRateServlet extends HttpServlet {
@@ -29,9 +31,18 @@ public class ExchangeRateServlet extends HttpServlet {
     var baseCurrency = currenciesCodes.substring(0, 3);
     var targetCurrency = currenciesCodes.substring(3, 6);
     PrintWriter writer = resp.getWriter();
-    var message = JsonConvert.jsonConvert(
-        exchangeRateRepository.finByCode(baseCurrency, targetCurrency));
-    writer.write(message);
+
+    Optional<ExchangeRate> exchangeRate = exchangeRateRepository.finByCode(baseCurrency,
+        targetCurrency);
+    if (exchangeRate.isPresent()) {
+      String message = JsonConvert.jsonConvert(exchangeRate.get());
+      writer.write(message);
+    } else {
+      resp.sendError(HttpServletResponse.SC_NOT_FOUND,
+          "There is no such exchange rate in the database");
+
+    }
+
   }
 
 

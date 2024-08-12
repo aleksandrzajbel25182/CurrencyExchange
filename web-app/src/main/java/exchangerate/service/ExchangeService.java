@@ -5,6 +5,7 @@ import com.entities.ExchangeRate;
 import com.repository.ExchangeRateRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 
 public class ExchangeService {
 
@@ -17,26 +18,26 @@ public class ExchangeService {
   public BigDecimal getRate(String from, String to) {
 
     // 1. There is a currency pair AB in the `ExchangeRates` table - we take its rate
-    ExchangeRate exchangeRate = exchangeRateRepository.finByCode(from, to);
-    if (exchangeRate != null) {
-      return exchangeRate.getRate();
+    Optional<ExchangeRate> exchangeRate = exchangeRateRepository.finByCode(from, to);
+    if (exchangeRate.isPresent()) {
+      return exchangeRate.get().getRate();
     }
     // 2. In the `ExchangeRates` table, there is a currency pair BA - take its rate,
     //    and count the reverse to get AB
-    ExchangeRate reverseExchangeRate = exchangeRateRepository.finByCode(to, from);
-    if (reverseExchangeRate != null) {
-      return new BigDecimal(1).divide(reverseExchangeRate.getRate(), 2, RoundingMode.HALF_UP);
+    Optional<ExchangeRate> reverseExchangeRate = exchangeRateRepository.finByCode(to, from);
+    if (reverseExchangeRate.isPresent()) {
+      return new BigDecimal(1).divide(reverseExchangeRate.get().getRate(), 2, RoundingMode.HALF_UP);
     }
 
     // 3. In the `ExchangeRates` table, there are currency pairs RUB-A and RUB-B
     //    calculate the AB rate from these rates
-    ExchangeRate exchangeRateRubToA = exchangeRateRepository.finByCode("RUB", from);
-    ExchangeRate exchangeRateRubToB = exchangeRateRepository.finByCode("RUB", to);
+    Optional<ExchangeRate> exchangeRateRubToA = exchangeRateRepository.finByCode("RUB", from);
+    Optional<ExchangeRate> exchangeRateRubToB = exchangeRateRepository.finByCode("RUB", to);
 
-    if (exchangeRateRubToA != null && exchangeRateRubToB != null) {
+    if (exchangeRateRubToA.isPresent() && exchangeRateRubToB.isPresent()) {
 
-      BigDecimal rateA = exchangeRateRubToA.getRate();
-      BigDecimal rateB = exchangeRateRubToB.getRate();
+      BigDecimal rateA = exchangeRateRubToA.get().getRate();
+      BigDecimal rateB = exchangeRateRubToB.get().getRate();
       BigDecimal intermediateResult = rateA.divide(rateB, 2, RoundingMode.HALF_UP);
       BigDecimal result = BigDecimal.ONE.divide(intermediateResult, 2, RoundingMode.HALF_UP);
       return result;

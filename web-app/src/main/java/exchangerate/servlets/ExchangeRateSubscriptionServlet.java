@@ -18,42 +18,41 @@ import java.io.PrintWriter;
 public class ExchangeRateSubscriptionServlet extends HttpServlet {
 
   private SubscriptionsRepository subscriptionsRepository;
-  private CurrenciesRepository currencyRepository;
+
   private ExchangeRateRepository exchangeRateRepository;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     subscriptionsRepository = (SubscriptionsRepository) config.getServletContext()
         .getAttribute("subscriptionsRepository");
-    currencyRepository = (CurrenciesRepository) config.getServletContext()
-        .getAttribute("currenciesRepository");
     exchangeRateRepository = (ExchangeRateRepository) config.getServletContext()
         .getAttribute("exchangeRateRepository");
   }
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
+      throws IOException {
     Subscriptions subscriptions = new Subscriptions();
+    PrintWriter writer = resp.getWriter();
     String url = req.getParameter("url");
     String baseCurrency = req.getParameter("base");
     String targetCurrency = req.getParameter("target");
 
     var exchangeRate = exchangeRateRepository.finByCode(baseCurrency, targetCurrency);
-    if (exchangeRate != null) {
+    if (exchangeRate.isPresent()) {
       subscriptions.setUrl(url);
-      subscriptions.setBaseCurrencyId(exchangeRate.getBaseCurrencyId());
-      subscriptions.setTargetCurrencyId(exchangeRate.getTargetCurrencyId());
-      subscriptions.setRate(exchangeRate.getRate());
-      subscriptions.setDate(exchangeRate.getDate());
+      subscriptions.setBaseCurrencyId(exchangeRate.get().getBaseCurrencyId());
+      subscriptions.setTargetCurrencyId(exchangeRate.get().getTargetCurrencyId());
+      subscriptions.setRate(exchangeRate.get().getRate());
+      subscriptions.setDate(exchangeRate.get().getDate());
       subscriptions.setStatus("не отправлено");
 
       subscriptionsRepository.upsert(subscriptions);
 
-      PrintWriter writer = resp.getWriter();
       var message = JsonConvert.jsonConvert(subscriptions);
       writer.write(message);
+    } else {
+      resp.sendError(HttpServletResponse.SC_NOT_FOUND, "There is no exchange rate");
     }
-
   }
 }

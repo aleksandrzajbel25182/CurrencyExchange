@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javafx.util.Pair;
 import javax.sql.DataSource;
 
@@ -158,8 +159,8 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
-  public ExchangeRate finByCode(String baseCurrency, String targetCurrency) {
-    ExchangeRate exchangeRate = null;
+  public Optional<ExchangeRate> finByCode(String baseCurrency, String targetCurrency) {
+
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_CODE)) {
 
@@ -171,10 +172,10 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
       ResultSet resultSet = statement.executeQuery();
 
-      if (resultSet.next()) {
-        exchangeRate = createEntity(resultSet);
+      if (!resultSet.next()) {
+       return  Optional.empty();
       }
-      return exchangeRate;
+      return Optional.of(createEntity(resultSet));
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
