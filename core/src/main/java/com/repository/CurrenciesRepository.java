@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import javax.sql.DataSource;
 
 
@@ -140,17 +141,17 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
     }
   }
 
-  public Currency findByCode(String hasCode) {
-    Currency currency = new Currency();
+  public Optional<Currency> findByCode(String hasCode) {
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_CODE)) {
 
       statement.setString(1, hasCode);
       ResultSet resultSet = statement.executeQuery();
-      if (resultSet.next()) {
-        currency = createEntity(resultSet);
+      if (!resultSet.next()) {
+        return Optional.empty();
       }
-      return currency;
+      return Optional.of(createEntity(resultSet));
+
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

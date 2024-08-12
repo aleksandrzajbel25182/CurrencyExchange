@@ -166,8 +166,8 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       var base = currenciesRepository.findByCode(baseCurrency);
       var target = currenciesRepository.findByCode(targetCurrency);
 
-      statement.setInt(1, base.getId());
-      statement.setInt(2, target.getId());
+      statement.setInt(1, base.get().getId());
+      statement.setInt(2, target.get().getId());
 
       ResultSet resultSet = statement.executeQuery();
 

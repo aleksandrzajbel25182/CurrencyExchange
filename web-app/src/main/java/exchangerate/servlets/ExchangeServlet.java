@@ -48,8 +48,8 @@ public class ExchangeServlet extends HttpServlet {
       return;
     }
     Exchange exchange = new Exchange(
-        currencyRepository.findByCode(from),
-        currencyRepository.findByCode(to),
+        currencyRepository.findByCode(from).get(),
+        currencyRepository.findByCode(to).get(),
         rate,
         amount,
         rate.multiply(amount)
