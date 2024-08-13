@@ -4,8 +4,6 @@ package exchangerate.listner;
 import com.repository.CurrenciesRepository;
 import com.repository.ExchangeRateRepository;
 import com.repository.SubscriptionsRepository;
-import exchangerate.error.DefaultErrorHandler;
-import exchangerate.error.ErrorHandler;
 import exchangerate.utils.ConnectionPool;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
@@ -37,8 +35,6 @@ public class ApplicationContextListner implements ServletContextListener {
     SubscriptionsRepository subscriptionsRepository = new SubscriptionsRepository(dataSource);
     context.setAttribute("subscriptionsRepository", subscriptionsRepository);
 
-    final ErrorHandler errorHandler = new DefaultErrorHandler();
-    context.setAttribute("errorHandler", errorHandler);
 
 
     System.out.println("ContextInitialized listner");

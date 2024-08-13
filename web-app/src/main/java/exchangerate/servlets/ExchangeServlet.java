@@ -3,7 +3,6 @@ package exchangerate.servlets;
 import com.entities.Exchange;
 import com.repository.CurrenciesRepository;
 import com.repository.ExchangeRateRepository;
-import exchangerate.error.DefaultErrorHandler;
 import exchangerate.error.ErrorHandler;
 import exchangerate.error.ErrorMessage;
 import exchangerate.service.ExchangeService;

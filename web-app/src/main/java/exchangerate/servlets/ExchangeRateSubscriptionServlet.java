@@ -1,11 +1,9 @@
 package exchangerate.servlets;
 
 import com.entities.Subscriptions;
-import com.repository.CurrenciesRepository;
 import com.repository.ExchangeRateRepository;
 import com.repository.SubscriptionsRepository;
 import com.util.JsonConvert;
-import exchangerate.error.DefaultErrorHandler;
 import exchangerate.error.ErrorHandler;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;

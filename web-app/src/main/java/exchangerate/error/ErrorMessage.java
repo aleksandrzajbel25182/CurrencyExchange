@@ -6,8 +6,7 @@ public enum ErrorMessage {
 
   CURRENCY_NOT_FOUND("Currency not found",
       HttpServletResponse.SC_NOT_FOUND),
-  PAIR_EXCHANGE_RATE_NOT_FOUND("Currency pair exchange rate is not found",
-      HttpServletResponse.SC_NOT_FOUND),
+
   EXCHANGER_RATE_NOT_FOUND("The exchange rate was not found",
       HttpServletResponse.SC_NOT_FOUND),
   CODE_NOT_IN_ADDRESS("Currency code is not in address",
