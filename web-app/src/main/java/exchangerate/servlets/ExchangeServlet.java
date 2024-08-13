@@ -45,14 +45,14 @@ public class ExchangeServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
 
-    String from = req.getParameter("from");
-    String to = req.getParameter("to");
+    String from = req.getParameter("from").toUpperCase();
+    String to = req.getParameter("to").toUpperCase();
     BigDecimal amount = new BigDecimal(req.getParameter("amount"));
     BigDecimal rate = exchangeService.getRate(from, to);
 
     if (rate == null) {
       errorHandler.sendError(ErrorMessage.EXCHANGER_RATE_NOT_FOUND, resp);
-
+      return;
     }
     Exchange exchange = new Exchange(
         currencyRepository.findByCode(from).get(),

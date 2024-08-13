@@ -20,7 +20,6 @@ import javafx.util.Pair;
 import javax.sql.DataSource;
 
 
-
 public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
   private final DataSource dataSource;
@@ -167,15 +166,18 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       var base = currenciesRepository.findByCode(baseCurrency);
       var target = currenciesRepository.findByCode(targetCurrency);
 
+      if (!base.isPresent() || !target.isPresent()) {
+        return Optional.empty();
+      }
       statement.setInt(1, base.get().getId());
       statement.setInt(2, target.get().getId());
-
       ResultSet resultSet = statement.executeQuery();
 
       if (!resultSet.next()) {
-       return  Optional.empty();
+        return Optional.empty();
       }
       return Optional.of(createEntity(resultSet));
+
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
