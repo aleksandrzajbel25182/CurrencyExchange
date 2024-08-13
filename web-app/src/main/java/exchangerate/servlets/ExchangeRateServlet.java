@@ -3,6 +3,9 @@ package exchangerate.servlets;
 import com.entities.ExchangeRate;
 import com.repository.ExchangeRateRepository;
 import com.util.JsonConvert;
+import exchangerate.error.DefaultErrorHandler;
+import exchangerate.error.ErrorHandler;
+import exchangerate.error.ErrorMessage;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,10 +21,14 @@ public class ExchangeRateServlet extends HttpServlet {
 
   private ExchangeRateRepository exchangeRateRepository;
 
+  private ErrorHandler errorHandler;
+
   @Override
   public void init(ServletConfig config) throws ServletException {
     exchangeRateRepository = (ExchangeRateRepository) config.getServletContext()
         .getAttribute("exchangeRateRepository");
+    errorHandler = (ErrorHandler) config.getServletContext().getAttribute("errorHandler");
+
   }
 
   @Override
@@ -38,9 +45,7 @@ public class ExchangeRateServlet extends HttpServlet {
       String message = JsonConvert.jsonConvert(exchangeRate.get());
       writer.write(message);
     } else {
-      resp.sendError(HttpServletResponse.SC_NOT_FOUND,
-          "There is no such exchange rate in the database");
-
+      errorHandler.sendError(ErrorMessage.EXCHANGER_RATE_NOT_FOUND, resp);
     }
 
   }

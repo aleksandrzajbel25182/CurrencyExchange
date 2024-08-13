@@ -3,6 +3,9 @@ package exchangerate.servlets;
 import com.entities.Currency;
 import com.repository.CurrenciesRepository;
 import com.util.JsonConvert;
+import exchangerate.error.DefaultErrorHandler;
+import exchangerate.error.ErrorHandler;
+import exchangerate.error.ErrorMessage;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,15 +16,18 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Optional;
 
+
 @WebServlet("/currency")
 public class CurrencyServlet extends HttpServlet {
 
   private CurrenciesRepository currencyRepository;
+  private ErrorHandler errorHandler;
 
   @Override
   public void init(ServletConfig config) {
     currencyRepository = (CurrenciesRepository) config.getServletContext()
         .getAttribute("currenciesRepository");
+    errorHandler = (ErrorHandler) config.getServletContext().getAttribute("errorHandler");
   }
 
   @Override
@@ -36,7 +42,7 @@ public class CurrencyServlet extends HttpServlet {
       String message = JsonConvert.jsonConvert(currency.get());
       writer.write(message);
     } else {
-      resp.sendError(HttpServletResponse.SC_NOT_FOUND, "There is no such currency in the database");
+      errorHandler.sendError(ErrorMessage.CURRENCY_NOT_FOUND, resp);
     }
 
   }

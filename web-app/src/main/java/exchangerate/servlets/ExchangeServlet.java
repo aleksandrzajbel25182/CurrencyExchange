@@ -3,6 +3,9 @@ package exchangerate.servlets;
 import com.entities.Exchange;
 import com.repository.CurrenciesRepository;
 import com.repository.ExchangeRateRepository;
+import exchangerate.error.DefaultErrorHandler;
+import exchangerate.error.ErrorHandler;
+import exchangerate.error.ErrorMessage;
 import exchangerate.service.ExchangeService;
 import com.util.JsonConvert;
 import jakarta.servlet.ServletConfig;
@@ -23,12 +26,16 @@ public class ExchangeServlet extends HttpServlet {
   private CurrenciesRepository currencyRepository;
 
   private ExchangeService exchangeService;
+
+  private ErrorHandler errorHandler;
+
   @Override
   public void init(ServletConfig config) {
     exchangeRateRepository = (ExchangeRateRepository) config.getServletContext()
         .getAttribute("exchangeRateRepository");
     currencyRepository = (CurrenciesRepository) config.getServletContext()
         .getAttribute("currenciesRepository");
+    errorHandler = (ErrorHandler) config.getServletContext().getAttribute("errorHandler");
 
     exchangeService = new ExchangeService(exchangeRateRepository);
   }
@@ -44,8 +51,8 @@ public class ExchangeServlet extends HttpServlet {
     BigDecimal rate = exchangeService.getRate(from, to);
 
     if (rate == null) {
-      resp.sendError(HttpServletResponse.SC_NOT_FOUND, "There is no exchange rate");
-      return;
+      errorHandler.sendError(ErrorMessage.EXCHANGER_RATE_NOT_FOUND, resp);
+
     }
     Exchange exchange = new Exchange(
         currencyRepository.findByCode(from).get(),

@@ -5,6 +5,8 @@ import com.repository.CurrenciesRepository;
 import com.repository.ExchangeRateRepository;
 import com.repository.SubscriptionsRepository;
 import com.util.JsonConvert;
+import exchangerate.error.DefaultErrorHandler;
+import exchangerate.error.ErrorHandler;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,12 +23,15 @@ public class ExchangeRateSubscriptionServlet extends HttpServlet {
 
   private ExchangeRateRepository exchangeRateRepository;
 
+  private ErrorHandler errorHandler;
+
   @Override
   public void init(ServletConfig config) throws ServletException {
     subscriptionsRepository = (SubscriptionsRepository) config.getServletContext()
         .getAttribute("subscriptionsRepository");
     exchangeRateRepository = (ExchangeRateRepository) config.getServletContext()
         .getAttribute("exchangeRateRepository");
+    errorHandler = (ErrorHandler) config.getServletContext().getAttribute("errorHandler");
   }
 
   @Override
