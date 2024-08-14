@@ -27,12 +27,14 @@ public class ExchangeRateConverterToEntity implements ExchangeRateDtoToEntity<Ex
     for (ExchangeRateDto entry : exchangeRateDto) {
       var baseCurrencyiId = currenciesRepository.findByCode(entry.getBaseCurrencyCode());
       var targetCurrencyId = currenciesRepository.findByCode(entry.getTargetCurrencyCode());
-      ExchangeRate exchangeRate = new ExchangeRate();
-      exchangeRate.setBaseCurrencyId(baseCurrencyiId);
-      exchangeRate.setTargetCurrencyId(targetCurrencyId);
-      exchangeRate.setRate(BigDecimal.valueOf(entry.getRate()));
-      exchangeRate.setDate(entry.getDate());
-      exchangeRates.add(exchangeRate);
+      if (baseCurrencyiId.isPresent() && targetCurrencyId.isPresent()){
+        ExchangeRate exchangeRate = new ExchangeRate();
+        exchangeRate.setBaseCurrencyId(baseCurrencyiId.get());
+        exchangeRate.setTargetCurrencyId(targetCurrencyId.get());
+        exchangeRate.setRate(BigDecimal.valueOf(entry.getRate()));
+        exchangeRate.setDate(entry.getDate());
+        exchangeRates.add(exchangeRate);
+      }
     }
     return exchangeRates;
   }
