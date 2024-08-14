@@ -42,6 +42,11 @@ public class ExchangeRateServlet extends HttpServlet {
 
     var baseCurrency = currenciesCodes.substring(0, 3);
     var targetCurrency = currenciesCodes.substring(3, 6);
+
+    if (!Validation.validateExchangeRate(baseCurrency, targetCurrency, resp)) {
+      return;
+    }
+
     Optional<ExchangeRate> exchangeRate = exchangeRateRepository.finByCode(baseCurrency,
         targetCurrency);
     if (exchangeRate.isPresent()) {

@@ -1,16 +1,22 @@
 package exchangerate.servlets;
 
+import static exchangerate.error.ErrorHandler.sendError;
+
+import exchangerate.error.ErrorMessage;
+import exchangerate.validation.Validation;
+
 import com.entities.Subscriptions;
 import com.repository.ExchangeRateRepository;
 import com.repository.SubscriptionsRepository;
 import com.util.JsonConvert;
-import exchangerate.error.ErrorHandler;
+
 import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletException;
+
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -21,15 +27,12 @@ public class ExchangeRateSubscriptionServlet extends HttpServlet {
 
   private ExchangeRateRepository exchangeRateRepository;
 
-  private ErrorHandler errorHandler;
-
   @Override
-  public void init(ServletConfig config) throws ServletException {
+  public void init(ServletConfig config) {
     subscriptionsRepository = (SubscriptionsRepository) config.getServletContext()
         .getAttribute("subscriptionsRepository");
     exchangeRateRepository = (ExchangeRateRepository) config.getServletContext()
         .getAttribute("exchangeRateRepository");
-    errorHandler = (ErrorHandler) config.getServletContext().getAttribute("errorHandler");
   }
 
   @Override
@@ -38,8 +41,12 @@ public class ExchangeRateSubscriptionServlet extends HttpServlet {
     Subscriptions subscriptions = new Subscriptions();
     PrintWriter writer = resp.getWriter();
     String url = req.getParameter("url");
-    String baseCurrency = req.getParameter("base");
-    String targetCurrency = req.getParameter("target");
+    String baseCurrency = req.getParameter("base").toUpperCase();
+    String targetCurrency = req.getParameter("target").toUpperCase();
+
+    if (!Validation.validateEmptyAndCorrectString(url, baseCurrency, targetCurrency, resp)) {
+      return;
+    }
 
     var exchangeRate = exchangeRateRepository.finByCode(baseCurrency, targetCurrency);
     if (exchangeRate.isPresent()) {
@@ -55,7 +62,7 @@ public class ExchangeRateSubscriptionServlet extends HttpServlet {
       var message = JsonConvert.jsonConvert(subscriptions);
       writer.write(message);
     } else {
-      resp.sendError(HttpServletResponse.SC_NOT_FOUND, "There is no exchange rate");
+      sendError(ErrorMessage.EXCHANGER_RATE_NOT_FOUND, resp);
     }
   }
 }
