@@ -37,7 +37,12 @@ public class SubscriptionsRepository {
   private static final String GET_SUBSCRIPTIONS_STATUS
       = "SELECT * "
       + "FROM subscriptions "
-      + "WHERE status = 'не отправлено' ";
+      + "WHERE status IN(?)";
+
+  private static final String GET_SUBSCRIPTIONS_URL
+      = "SELECT * "
+      + "FROM subscriptions "
+      + "WHERE URL = ? AND status = ? ";
 
   /**
    * Constructs a new SubscriptionsRepository instance with the provided DataSource. It also
@@ -48,35 +53,6 @@ public class SubscriptionsRepository {
   public SubscriptionsRepository(DataSource dataSource) {
     this.dataSource = dataSource;
     currenciesRepository = new CurrenciesRepository(dataSource);
-  }
-
-  /**
-   * Upsert (inserts or updates) a subscription in the database. If the subscription with the same
-   * URL, base currency, and target currency already exists, it updates the rate and date fields.
-   * Otherwise, it inserts a new subscription.
-   *
-   * @param entity the subscription to be upserted
-   * @throws RuntimeException if an SQL exception occurs during the database query
-   */
-  public void upsert(Subscriptions entity) {
-
-    StringBuilder sql = new StringBuilder(
-        "INSERT INTO subscriptions (url,basecurrencyid,targetcurrencyid,rate,date,status) "
-            + "VALUES (?,?,?,?,?,?) "
-            + "ON CONFLICT(url,basecurrencyid,targetcurrencyid) DO UPDATE "
-            + "SET rate = EXCLUDED.rate, date = EXCLUDED.date");
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
-      preparedStatement.setString(1, entity.getUrl());
-      preparedStatement.setInt(2, entity.getBaseCurrencyId().getId());
-      preparedStatement.setInt(3, entity.getTargetCurrencyId().getId());
-      preparedStatement.setBigDecimal(4, entity.getRate());
-      preparedStatement.setDate(5, Date.valueOf(entity.getDate()));
-      preparedStatement.setString(6, entity.getStatus());
-      preparedStatement.executeUpdate();
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   /**
@@ -109,17 +85,19 @@ public class SubscriptionsRepository {
   }
 
   /**
-   * Retrieves all subscriptions from the database with a status of 'не отправлено' (not sent).
+   * Retrieves all subscriptions from the database with the status passed as a parameter.
    *
-   * @return a list of subscriptions with the 'не отправлено' status
+   * @return a list of subscriptions with the status
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
-  public List<Subscriptions> getByStatus() {
+  public List<Subscriptions> getByStatus(String status) {
     List<Subscriptions> subscriptions = new ArrayList<>();
     try (Connection connection = dataSource.getConnection();
-        Statement statement = connection.createStatement()) {
+        PreparedStatement preparedStatement = connection.prepareStatement(
+            GET_SUBSCRIPTIONS_STATUS)) {
+      preparedStatement.setString(1, status);
 
-      ResultSet resultSet = statement.executeQuery(GET_SUBSCRIPTIONS_STATUS);
+      ResultSet resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         subscriptions.add(
             new Subscriptions(
@@ -132,6 +110,61 @@ public class SubscriptionsRepository {
                 resultSet.getString("status")));
       }
       return subscriptions;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Upsert (inserts or updates) a subscription in the database. If the subscription with the same
+   * URL, base currency, and target currency already exists, it updates the rate and date fields.
+   * Otherwise, it inserts a new subscription.
+   *
+   * @param entity the subscription to be upserted
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
+  public void upsert(Subscriptions entity) {
+
+    StringBuilder sql = new StringBuilder(
+        "INSERT INTO subscriptions (url,basecurrencyid,targetcurrencyid,rate,date,status) "
+            + "VALUES (?,?,?,?,?,?) "
+            + "ON CONFLICT(url,basecurrencyid,targetcurrencyid) DO UPDATE "
+            + "SET rate = EXCLUDED.rate, date = EXCLUDED.date, status = EXCLUDED.status");
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
+      preparedStatement.setString(1, entity.getUrl());
+      preparedStatement.setInt(2, entity.getBaseCurrencyId().getId());
+      preparedStatement.setInt(3, entity.getTargetCurrencyId().getId());
+      preparedStatement.setBigDecimal(4, entity.getRate());
+      preparedStatement.setDate(5, Date.valueOf(entity.getDate()));
+      preparedStatement.setString(6, entity.getStatus());
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void upsert(List<Subscriptions> entities) {
+
+    StringBuilder sql = new StringBuilder(
+        "INSERT INTO subscriptions (url,basecurrencyid,targetcurrencyid,rate,date,status) "
+            + "VALUES (?,?,?,?,?,?) "
+            + "ON CONFLICT(url,basecurrencyid,targetcurrencyid) DO UPDATE "
+            + "SET rate = EXCLUDED.rate, date = EXCLUDED.date, status = EXCLUDED.status");
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
+      for(Subscriptions entry: entities){
+        preparedStatement.setString(1, entry.getUrl());
+        preparedStatement.setInt(2, entry.getBaseCurrencyId().getId());
+        preparedStatement.setInt(3, entry.getTargetCurrencyId().getId());
+        preparedStatement.setBigDecimal(4, entry.getRate());
+        preparedStatement.setDate(5, Date.valueOf(entry.getDate()));
+        preparedStatement.setString(6, entry.getStatus());
+        preparedStatement.addBatch();
+      }
+      preparedStatement.executeBatch();
+
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

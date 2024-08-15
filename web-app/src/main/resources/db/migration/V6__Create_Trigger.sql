@@ -3,7 +3,7 @@ CREATE FUNCTION update_subscription()
 $$
 BEGIN
 UPDATE subscriptions
-SET status = 'не отправлено',
+SET status = 'not sent',
     rate   = NEW.rate,
     date   = NEW.date
 

@@ -12,6 +12,7 @@ import com.util.JsonConvert;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,20 +51,12 @@ public class NotificationSenderService implements NotificationSender {
    */
   @Override
   public void send() {
-    HashMap<String, String> notificationUrlToJson = new HashMap<>();
-    List<Subscriptions> subscriptions = subscriptionsRepository.getByStatus();
+    List<Subscriptions> subscriptions = subscriptionsRepository.getByStatus("not sent");
 
-    for (Subscriptions subscription : subscriptions) {
-      notificationUrlToJson.put(subscription.getUrl(),
-          JsonConvert.jsonConvert(new Notification(
-              "Обновленная валютная пара",
-              subscription.getBaseCurrencyId(),
-              subscription.getTargetCurrencyId(),
-              subscription.getRate(),
-              subscription.getDate()
-          )));
-    }
+    // Creating a map where the key is the subscription url, the notification value
+    HashMap<String, String> notificationUrlToJson = createNotification(subscriptions);
 
+    List<String> urlSentOKList = new ArrayList<>();
     try {
       for (Map.Entry<String, String> notification : notificationUrlToJson.entrySet()) {
         URL apiUrl = new URL(notification.getKey());
@@ -79,16 +72,39 @@ public class NotificationSenderService implements NotificationSender {
         outputStream.flush();
 
         int responseCode = connection.getResponseCode();
-
+        if (responseCode == connection.HTTP_OK) {
+          urlSentOKList.add(notification.getKey());
+        }
         System.out.println("Server response: " + responseCode);
-
         outputStream.close();
         connection.disconnect();
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
 
+      }
+      for (Subscriptions subscription : subscriptions) {
+        if (urlSentOKList.contains(subscription.getUrl())) {
+          subscription.setStatus("sent");
+        }
+      }
+      subscriptionsRepository.upsert(subscriptions);
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
+
+  private HashMap<String, String> createNotification(List<Subscriptions> subscriptions) {
+    HashMap<String, String> notificationUrlToJson = new HashMap<>();
+    for (Subscriptions subscription : subscriptions) {
+      notificationUrlToJson.put(subscription.getUrl(),
+          JsonConvert.jsonConvert(new Notification(
+              "Updated currency pair",
+              subscription.getBaseCurrencyId(),
+              subscription.getTargetCurrencyId(),
+              subscription.getRate(),
+              subscription.getDate()
+          )));
+    }
+    return notificationUrlToJson;
   }
 }
 

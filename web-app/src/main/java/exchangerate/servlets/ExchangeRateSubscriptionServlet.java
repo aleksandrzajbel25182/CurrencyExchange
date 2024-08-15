@@ -55,7 +55,7 @@ public class ExchangeRateSubscriptionServlet extends HttpServlet {
       subscriptions.setTargetCurrencyId(exchangeRate.get().getTargetCurrencyId());
       subscriptions.setRate(exchangeRate.get().getRate());
       subscriptions.setDate(exchangeRate.get().getDate());
-      subscriptions.setStatus("не отправлено");
+      subscriptions.setStatus("not sent");
 
       subscriptionsRepository.upsert(subscriptions);
 
