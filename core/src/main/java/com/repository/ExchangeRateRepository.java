@@ -1,8 +1,11 @@
+/*
+ * ExchangeRateRepository.java        1.0 2024/08/15
+ */
 package com.repository;
-
 
 import com.entities.ExchangeRate;
 import com.interfaces.CrudRepository;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
@@ -16,13 +19,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import javafx.util.Pair;
+
 import javax.sql.DataSource;
 
-
+/**
+ * The `ExchangeRateRepository` class is an implementation of the {@link CrudRepository} interface
+ * that provides CRUD operations for managing exchange rates in a database. The class also uses a
+ * {@link CurrenciesRepository} instance to retrieve currency information
+ *
+ * @author Александр Зайбель
+ * @version 1.0
+ * @see CrudRepository
+ */
 public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
 
   private final DataSource dataSource;
+
   private CurrenciesRepository currenciesRepository;
 
   private static final String GET_ALL_EXCHANGE_RATE
@@ -47,11 +61,22 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       = "UPDATE exchangerates SET rate = ? , date = ? "
       + "WHERE id = ?";
 
+  /**
+   * Constructs a new `ExchangeRateRepository` instance with the provided `DataSource`.
+   *
+   * @param dataSource the `DataSource` to be used for database operations
+   */
   public ExchangeRateRepository(DataSource dataSource) {
     this.dataSource = dataSource;
     currenciesRepository = new CurrenciesRepository(dataSource);
   }
 
+  /**
+   * Creates a new `ExchangeRate` entity in the database.
+   *
+   * @param entity the `ExchangeRate` entity to be created
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   @Override
   public void create(ExchangeRate entity) {
 
@@ -68,6 +93,12 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  /**
+   * Creates entities in the database. The batch processing of the driver is used
+   *
+   * @param entities - list of "ExchangeRate" objects to be created.
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   @Override
   public void createBatch(List<ExchangeRate> entities) {
 
@@ -86,6 +117,12 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  /**
+   * Retrieves all `ExchangeRate` entities from the database.
+   *
+   * @return a list of all `Exchange Rate` entities
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   @Override
   public List<ExchangeRate> get() {
     List<ExchangeRate> listExchange;
@@ -103,6 +140,13 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  /**
+   * Finds a `ExchangeRate` entity by its ID.
+   *
+   * @param id the ID of the `Currency` entity to be found
+   * @return the `ExchangeRate` entity with the specified ID
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   @Override
   public ExchangeRate findById(int id) {
     ExchangeRate exchangeRate = null;
@@ -120,6 +164,12 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  /**
+   * Updates an existing `ExchangeRate` entity in the database.
+   *
+   * @param entity the `ExchangeRate` entity to be updated
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   @Override
   public void update(ExchangeRate entity) {
 
@@ -135,6 +185,13 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  /**
+   * Performs an upsert operation on a list of `ExchangeRate` entities. If a `ExchangeRate` entity
+   * with the same code already exists, it will be updated; otherwise, it will be inserted.
+   *
+   * @param entities the list of `ExchangeRate` entities to be upserted
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   @Override
   public void upsert(List<ExchangeRate> entities) {
     StringBuilder sql = new StringBuilder(
@@ -158,6 +215,15 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  /**
+   * Retrieves an exchange rate by the base and target currency codes.
+   *
+   * @param baseCurrency   base currency codes
+   * @param targetCurrency target currency codes
+   * @return an `Optional` containing the `ExchangeRate` entity with the specified code, or an empty
+   * `Optional` if not found
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   public Optional<ExchangeRate> finByCode(String baseCurrency, String targetCurrency) {
 
     try (Connection connection = dataSource.getConnection();
@@ -183,6 +249,12 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  /**
+   * Updates a batch of exchange rates in the database.The batch processing of the driver is used
+   *
+   * @param entities the `ExchangeRate` list to be updated
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   public void updateBatch(List<ExchangeRate> entities) {
 
     try (Connection connection = dataSource.getConnection();
@@ -195,12 +267,18 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       }
       preparedStatement.executeBatch();
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
-
-  public ExchangeRate createEntity(ResultSet resultSet) {
+  /**
+   * Creates a `ExchangeRate` entity from a `ResultSet`.
+   *
+   * @param resultSet the `ResultSet` containing the data for the `ExchangeRate` entity
+   * @return the `ExchangeRate` entity created from the `ResultSet`
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
+  private ExchangeRate createEntity(ResultSet resultSet) {
     try {
       return new ExchangeRate(
           resultSet.getInt("id"),
@@ -214,6 +292,15 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
     }
   }
 
+  /**
+   * Retrieves the exchange rate IDs for the given list of currency code pairs.
+   *
+   * @param listCharCodesPairs a list of currency code pairs represented as
+   *                           {@link Pair<Integer, Integer>}
+   * @return a  {@code Map<Pair<Integer, Integer>, Integer>}, where the key is the currency code
+   * pair and the value is the corresponding exchange rate ID
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   public Map<Pair<Integer, Integer>, Integer> getExchangeRateIdsByPairs(
       List<Pair<Integer, Integer>> listCharCodesPairs) {
     Map<Pair<Integer, Integer>, Integer> existingPairs = new HashMap<>();

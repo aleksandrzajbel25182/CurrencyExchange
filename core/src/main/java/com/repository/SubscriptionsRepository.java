@@ -1,8 +1,10 @@
+/*
+ * SubscriptionsRepository.java        1.0 2024/08/15
+ */
 package com.repository;
 
-import com.entities.Currency;
 import com.entities.Subscriptions;
-import com.interfaces.CrudRepository;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
@@ -12,13 +14,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.sql.DataSource;
 
+/**
+ * The SubscriptionsRepository class is responsible for managing the storage and retrieval of
+ * subscription data in a database. It provides methods for creating, updating, and retrieving
+ * subscriptions.
+ *
+ * @author Александр Зайбель
+ * @version 1.0
+ */
 public class SubscriptionsRepository {
 
   private final DataSource dataSource;
 
   private final CurrenciesRepository currenciesRepository;
+
   private static final String GET_SUBSCRIPTIONS
       = "SELECT * "
       + "FROM subscriptions";
@@ -27,15 +39,25 @@ public class SubscriptionsRepository {
       + "FROM subscriptions "
       + "WHERE status = 'не отправлено' ";
 
-  private static final String INSERT_SUBSCRIPTIONS
-      = "INSERT INTO subscriptions (url,basecurrencyid,targetcurrencyid,rate,date,status) "
-      + "VALUES(?,?,?,?,?,?) ";
-
+  /**
+   * Constructs a new SubscriptionsRepository instance with the provided DataSource. It also
+   * initializes a CurrenciesRepository instance.
+   *
+   * @param dataSource the DataSource to be used for database connections
+   */
   public SubscriptionsRepository(DataSource dataSource) {
     this.dataSource = dataSource;
     currenciesRepository = new CurrenciesRepository(dataSource);
   }
 
+  /**
+   * Upsert (inserts or updates) a subscription in the database. If the subscription with the same
+   * URL, base currency, and target currency already exists, it updates the rate and date fields.
+   * Otherwise, it inserts a new subscription.
+   *
+   * @param entity the subscription to be upserted
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   public void upsert(Subscriptions entity) {
 
     StringBuilder sql = new StringBuilder(
@@ -57,6 +79,12 @@ public class SubscriptionsRepository {
     }
   }
 
+  /**
+   * Retrieves all subscriptions from the database.
+   *
+   * @return a list of all subscriptions
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   public List<Subscriptions> get() {
     List<Subscriptions> subscriptions = new ArrayList<>();
     try (Connection connection = dataSource.getConnection();
@@ -80,6 +108,12 @@ public class SubscriptionsRepository {
     }
   }
 
+  /**
+   * Retrieves all subscriptions from the database with a status of 'не отправлено' (not sent).
+   *
+   * @return a list of subscriptions with the 'не отправлено' status
+   * @throws RuntimeException if an SQL exception occurs during the database query
+   */
   public List<Subscriptions> getByStatus() {
     List<Subscriptions> subscriptions = new ArrayList<>();
     try (Connection connection = dataSource.getConnection();
