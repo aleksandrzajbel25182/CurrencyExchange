@@ -4,6 +4,7 @@
 package com.services;
 
 
+import com.entities.ExchangeRate;
 import com.entities.Subscription;
 import com.interfaces.NotificationSender;
 import com.repository.SubscriptionsRepository;
@@ -41,7 +42,7 @@ public class NotificationSenderService implements NotificationSender {
    */
   public NotificationSenderService(DataSource dataSource) {
     this.dataSource = dataSource;
-    subscriptionsRepository = new SubscriptionsRepository(dataSource);
+    subscriptionsRepository = new SubscriptionsRepository(this.dataSource);
   }
 
   /**
@@ -98,10 +99,13 @@ public class NotificationSenderService implements NotificationSender {
       notificationUrlToJson.put(subscription.getUrl(),
           JsonConvert.jsonConvert(new Notification(
               "Updated currency pair",
-              subscription.getBaseCurrencyId(),
-              subscription.getTargetCurrencyId(),
-              subscription.getRate(),
-              subscription.getDate()
+              new ExchangeRate(
+                  subscription.getId(),
+                  subscription.getBaseCurrencyId(),
+                  subscription.getTargetCurrencyId(),
+                  subscription.getRate(),
+                  subscription.getDate()
+              )
           )));
     }
     return notificationUrlToJson;

@@ -3,11 +3,7 @@
  */
 package com.services;
 
-import com.entities.Currency;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
+import com.entities.ExchangeRate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,23 +27,8 @@ public class Notification {
   private String message;
 
   /**
-   * The base currency ID for the exchange rate.
+   * The exchange rate
    */
-  private Currency baseCurrencyId;
-
-  /**
-   * The target currency ID for the exchange rate.
-   */
-  private Currency targetCurrencyId;
-
-  /**
-   * The exchange rate between the base and target currencies.
-   */
-  private BigDecimal rate;
-
-  /**
-   * The date of the exchange rate.
-   */
-  private LocalDate date;
+  private ExchangeRate exchangeRate;
 
 }
