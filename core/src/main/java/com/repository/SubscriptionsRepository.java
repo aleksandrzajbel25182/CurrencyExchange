@@ -3,7 +3,7 @@
  */
 package com.repository;
 
-import com.entities.Subscriptions;
+import com.entities.Subscription;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -61,15 +61,15 @@ public class SubscriptionsRepository {
    * @return a list of all subscriptions
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
-  public List<Subscriptions> get() {
-    List<Subscriptions> subscriptions = new ArrayList<>();
+  public List<Subscription> get() {
+    List<Subscription> subscription = new ArrayList<>();
     try (Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement()) {
 
       ResultSet resultSet = statement.executeQuery(GET_SUBSCRIPTIONS);
       while (resultSet.next()) {
-        subscriptions.add(
-            new Subscriptions(
+        subscription.add(
+            new Subscription(
                 resultSet.getInt("id"),
                 resultSet.getString("url"),
                 currenciesRepository.findById(resultSet.getInt("basecurrencyid")),
@@ -78,7 +78,7 @@ public class SubscriptionsRepository {
                 resultSet.getDate("date").toLocalDate(),
                 resultSet.getString("status")));
       }
-      return subscriptions;
+      return subscription;
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -90,8 +90,8 @@ public class SubscriptionsRepository {
    * @return a list of subscriptions with the status
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
-  public List<Subscriptions> getByStatus(String status) {
-    List<Subscriptions> subscriptions = new ArrayList<>();
+  public List<Subscription> getByStatus(String status) {
+    List<Subscription> subscriptions = new ArrayList<>();
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(
             GET_SUBSCRIPTIONS_STATUS)) {
@@ -100,7 +100,7 @@ public class SubscriptionsRepository {
       ResultSet resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         subscriptions.add(
-            new Subscriptions(
+            new Subscription(
                 resultSet.getInt("id"),
                 resultSet.getString("url"),
                 currenciesRepository.findById(resultSet.getInt("basecurrencyid")),
@@ -123,7 +123,7 @@ public class SubscriptionsRepository {
    * @param entity the subscription to be upserted
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
-  public void upsert(Subscriptions entity) {
+  public void upsert(Subscription entity) {
 
     StringBuilder sql = new StringBuilder(
         "INSERT INTO subscriptions (url,basecurrencyid,targetcurrencyid,rate,date,status) "
@@ -144,7 +144,7 @@ public class SubscriptionsRepository {
     }
   }
 
-  public void upsert(List<Subscriptions> entities) {
+  public void upsert(List<Subscription> entities) {
 
     StringBuilder sql = new StringBuilder(
         "INSERT INTO subscriptions (url,basecurrencyid,targetcurrencyid,rate,date,status) "
@@ -154,7 +154,7 @@ public class SubscriptionsRepository {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
-      for(Subscriptions entry: entities){
+      for(Subscription entry: entities){
         preparedStatement.setString(1, entry.getUrl());
         preparedStatement.setInt(2, entry.getBaseCurrencyId().getId());
         preparedStatement.setInt(3, entry.getTargetCurrencyId().getId());

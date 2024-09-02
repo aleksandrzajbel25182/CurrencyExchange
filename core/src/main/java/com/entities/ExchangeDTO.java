@@ -20,7 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Exchange {
+public class ExchangeDTO {
 
   /**
    * The base currency to be exchanged.
@@ -45,6 +45,6 @@ public class Exchange {
   /**
    * The result of converting the amount of the base currency based on the specified exchange rate.
    */
-  BigDecimal convertToAmount;
+  BigDecimal convertedAmount;
 
 }

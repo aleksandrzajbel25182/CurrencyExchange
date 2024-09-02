@@ -4,7 +4,7 @@
 package com.services;
 
 
-import com.entities.Subscriptions;
+import com.entities.Subscription;
 import com.interfaces.NotificationSender;
 import com.repository.SubscriptionsRepository;
 import com.util.JsonConvert;
@@ -51,7 +51,7 @@ public class NotificationSenderService implements NotificationSender {
    */
   @Override
   public void send() {
-    List<Subscriptions> subscriptions = subscriptionsRepository.getByStatus("not sent");
+    List<Subscription> subscriptions = subscriptionsRepository.getByStatus("not sent");
 
     // Creating a map where the key is the subscription url, the notification value
     HashMap<String, String> notificationUrlToJson = createNotification(subscriptions);
@@ -80,7 +80,7 @@ public class NotificationSenderService implements NotificationSender {
         connection.disconnect();
 
       }
-      for (Subscriptions subscription : subscriptions) {
+      for (Subscription subscription : subscriptions) {
         if (urlSentOKList.contains(subscription.getUrl())) {
           subscription.setStatus("sent");
         }
@@ -92,9 +92,9 @@ public class NotificationSenderService implements NotificationSender {
     }
   }
 
-  private HashMap<String, String> createNotification(List<Subscriptions> subscriptions) {
+  private HashMap<String, String> createNotification(List<Subscription> subscriptions) {
     HashMap<String, String> notificationUrlToJson = new HashMap<>();
-    for (Subscriptions subscription : subscriptions) {
+    for (Subscription subscription : subscriptions) {
       notificationUrlToJson.put(subscription.getUrl(),
           JsonConvert.jsonConvert(new Notification(
               "Updated currency pair",

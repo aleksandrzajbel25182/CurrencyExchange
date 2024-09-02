@@ -6,7 +6,7 @@ import exchangerate.error.ErrorMessage;
 import exchangerate.service.ExchangeService;
 import exchangerate.validation.Validation;
 
-import com.entities.Exchange;
+import com.entities.ExchangeDTO;
 import com.repository.CurrenciesRepository;
 import com.repository.ExchangeRateRepository;
 import com.util.JsonConvert;
@@ -57,7 +57,7 @@ public class ExchangeServlet extends HttpServlet {
       sendError(ErrorMessage.EXCHANGER_RATE_NOT_FOUND, resp);
       return;
     }
-    Exchange exchange = new Exchange(
+    ExchangeDTO exchangeDTO = new ExchangeDTO(
         currencyRepository.findByCode(from).get(),
         currencyRepository.findByCode(to).get(),
         rate,
@@ -66,7 +66,7 @@ public class ExchangeServlet extends HttpServlet {
     );
 
     PrintWriter writer = resp.getWriter();
-    var message = JsonConvert.jsonConvert(exchange);
+    var message = JsonConvert.jsonConvert(exchangeDTO);
     writer.write(message);
   }
 }

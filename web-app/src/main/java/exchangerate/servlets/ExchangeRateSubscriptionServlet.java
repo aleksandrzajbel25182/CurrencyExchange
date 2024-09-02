@@ -5,7 +5,7 @@ import static exchangerate.error.ErrorHandler.sendError;
 import exchangerate.error.ErrorMessage;
 import exchangerate.validation.Validation;
 
-import com.entities.Subscriptions;
+import com.entities.Subscription;
 import com.repository.ExchangeRateRepository;
 import com.repository.SubscriptionsRepository;
 import com.util.JsonConvert;
@@ -38,7 +38,7 @@ public class ExchangeRateSubscriptionServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
-    Subscriptions subscriptions = new Subscriptions();
+    Subscription subscriptions = new Subscription();
     PrintWriter writer = resp.getWriter();
     String url = req.getParameter("url");
     String baseCurrency = req.getParameter("base").toUpperCase();
