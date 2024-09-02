@@ -3,6 +3,7 @@
  */
 package com.repository;
 
+import com.entities.Currency;
 import com.entities.Subscription;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.Optional;
 import javax.sql.DataSource;
 
 /**
@@ -68,12 +70,16 @@ public class SubscriptionsRepository {
 
       ResultSet resultSet = statement.executeQuery(GET_SUBSCRIPTIONS);
       while (resultSet.next()) {
+        Optional<Currency> baseCurrency = currenciesRepository.findById(
+            resultSet.getInt("basecurrencyid"));
+        Optional<Currency> targetCurrency = currenciesRepository.findById(
+            resultSet.getInt("targetcurrencyid"));
         subscription.add(
             new Subscription(
                 resultSet.getInt("id"),
                 resultSet.getString("url"),
-                currenciesRepository.findById(resultSet.getInt("basecurrencyid")),
-                currenciesRepository.findById(resultSet.getInt("targetcurrencyid")),
+                baseCurrency.get(),
+                targetCurrency.get(),
                 BigDecimal.valueOf(resultSet.getDouble("rate")),
                 resultSet.getDate("date").toLocalDate(),
                 resultSet.getString("status")));
@@ -99,12 +105,16 @@ public class SubscriptionsRepository {
 
       ResultSet resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
+        Optional<Currency> baseCurrency = currenciesRepository.findById(
+            resultSet.getInt("basecurrencyid"));
+        Optional<Currency> targetCurrency = currenciesRepository.findById(
+            resultSet.getInt("targetcurrencyid"));
         subscriptions.add(
             new Subscription(
                 resultSet.getInt("id"),
                 resultSet.getString("url"),
-                currenciesRepository.findById(resultSet.getInt("basecurrencyid")),
-                currenciesRepository.findById(resultSet.getInt("targetcurrencyid")),
+                baseCurrency.get(),
+                targetCurrency.get(),
                 BigDecimal.valueOf(resultSet.getDouble("rate")),
                 resultSet.getDate("date").toLocalDate(),
                 resultSet.getString("status")));
@@ -154,7 +164,7 @@ public class SubscriptionsRepository {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
-      for(Subscription entry: entities){
+      for (Subscription entry : entities) {
         preparedStatement.setString(1, entry.getUrl());
         preparedStatement.setInt(2, entry.getBaseCurrencyId().getId());
         preparedStatement.setInt(3, entry.getTargetCurrencyId().getId());

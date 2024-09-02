@@ -135,16 +135,17 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
   @Override
-  public Currency findById(int id) {
-    Currency currency = new Currency();
+  public Optional<Currency> findById(int id) {
+
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_ID)) {
       statement.setInt(1, id);
       ResultSet resultSet = statement.executeQuery();
-      if (resultSet.next()) {
-        currency = createEntity(resultSet);
+      if (!resultSet.next()) {
+        return Optional.empty();
       }
-      return currency;
+      return Optional.of(createEntity(resultSet));
+
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

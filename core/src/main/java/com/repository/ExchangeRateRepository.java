@@ -3,6 +3,7 @@
  */
 package com.repository;
 
+import com.entities.Currency;
 import com.entities.ExchangeRate;
 import com.interfaces.CrudRepository;
 
@@ -150,17 +151,16 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
   @Override
-  public ExchangeRate findById(int id) {
-    ExchangeRate exchangeRate = null;
+  public Optional<ExchangeRate> findById(int id) {
+
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_ID)) {
       statement.setInt(1, id);
       ResultSet resultSet = statement.executeQuery();
-
       if (resultSet.next()) {
-        exchangeRate = createEntity(resultSet);
+        return Optional.empty();
       }
-      return exchangeRate;
+      return Optional.of(createEntity(resultSet));
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -281,12 +281,16 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
    * @return the `ExchangeRate` entity created from the `ResultSet`
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
-  private ExchangeRate createEntity(ResultSet resultSet) {
+  private ExchangeRate createEntity(ResultSet resultSet) throws SQLException {
+    Optional<Currency> baseCurrency = currenciesRepository.findById(
+        resultSet.getInt("basecurrencyid"));
+    Optional<Currency> targetCurrency = currenciesRepository.findById(
+        resultSet.getInt("targetcurrencyid"));
     try {
       return new ExchangeRate(
           resultSet.getInt("id"),
-          currenciesRepository.findById(resultSet.getInt("basecurrencyid")),
-          currenciesRepository.findById(resultSet.getInt("targetcurrencyid")),
+          baseCurrency.get(),
+          targetCurrency.get(),
           BigDecimal.valueOf(resultSet.getDouble("rate")),
           resultSet.getDate("date").toLocalDate()
       );

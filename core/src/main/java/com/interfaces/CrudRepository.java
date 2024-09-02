@@ -4,6 +4,7 @@
 package com.interfaces;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A generic repository interface that provides basic CRUD (Create, Read, Update) operations for a
@@ -41,7 +42,7 @@ public interface CrudRepository<T> {
    * @param id the unique identifier of the entity
    * @return the entity with the specified ID, or null if not found
    */
-  T findById(int id);
+  Optional<T> findById(int id);
 
   /**
    * Updates an existing entity in the underlying data store.
