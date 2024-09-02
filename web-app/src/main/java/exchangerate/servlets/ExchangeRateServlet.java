@@ -47,7 +47,7 @@ public class ExchangeRateServlet extends HttpServlet {
       return;
     }
 
-    Optional<ExchangeRate> exchangeRate = exchangeRateRepository.finByCode(baseCurrency,
+    Optional<ExchangeRate> exchangeRate = exchangeRateRepository.findByCode(baseCurrency,
         targetCurrency);
     if (exchangeRate.isPresent()) {
       String message = JsonConvert.jsonConvert(exchangeRate.get());

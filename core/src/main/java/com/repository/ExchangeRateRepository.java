@@ -57,9 +57,11 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       = "INSERT INTO exchangerates(basecurrencyid,targetcurrencyid,rate,date) "
       + "VALUES(?,?,?,?) ";
 
-  private static final String UPDATE_EXCHANGE_RATE
-      = "UPDATE exchangerates SET rate = ? , date = ? "
-      + "WHERE id = ?";
+  private static final String UPSERT_EXCHANGE_RATE
+      = "INSERT INTO exchangerates (basecurrencyid,targetcurrencyid,rate,date) "
+      + "VALUES (?,?,?,?) "
+      + "ON CONFLICT(basecurrencyid,targetcurrencyid,date) DO UPDATE "
+      + "SET rate = EXCLUDED.rate, date = EXCLUDED.date";
 
   /**
    * Constructs a new `ExchangeRateRepository` instance with the provided `DataSource`.
@@ -89,7 +91,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       preparedStatement.setDate(4, Date.valueOf(entity.getDate()));
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
@@ -100,7 +102,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
   @Override
-  public void createBatch(List<ExchangeRate> entities) {
+  public void create(List<ExchangeRate> entities) {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(INSERT_EXCHANGE_RATE)) {
@@ -113,7 +115,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
       }
       preparedStatement.executeBatch();
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
@@ -171,17 +173,18 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
   @Override
-  public void update(ExchangeRate entity) {
+  public void upsert(ExchangeRate entity) {
 
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_EXCHANGE_RATE)) {
+        PreparedStatement preparedStatement = connection.prepareStatement(UPSERT_EXCHANGE_RATE)) {
 
-      preparedStatement.setBigDecimal(1, entity.getRate());
-      preparedStatement.setDate(2, Date.valueOf(entity.getDate()));
-      preparedStatement.setInt(3, entity.getId());
+      preparedStatement.setInt(1, entity.getBaseCurrencyId().getId());
+      preparedStatement.setInt(2, entity.getTargetCurrencyId().getId());
+      preparedStatement.setBigDecimal(3, entity.getRate());
+      preparedStatement.setDate(4, Date.valueOf(entity.getDate()));
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
@@ -224,7 +227,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
    * `Optional` if not found
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
-  public Optional<ExchangeRate> finByCode(String baseCurrency, String targetCurrency) {
+  public Optional<ExchangeRate> findByCode(String baseCurrency, String targetCurrency) {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(GET_FIND_BY_CODE)) {
@@ -255,10 +258,10 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
    * @param entities the `ExchangeRate` list to be updated
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
-  public void updateBatch(List<ExchangeRate> entities) {
+  public void update(List<ExchangeRate> entities) {
 
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_EXCHANGE_RATE)) {
+        PreparedStatement preparedStatement = connection.prepareStatement(UPSERT_EXCHANGE_RATE)) {
       for (ExchangeRate entity : entities) {
         preparedStatement.setBigDecimal(1, entity.getRate());
         preparedStatement.setDate(2, Date.valueOf(entity.getDate()));

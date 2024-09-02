@@ -79,7 +79,7 @@ public class Updater {
     }
     if (!currencyToInsert.isEmpty()) {
       var currenciesToInsertList = currencyConverterToEntity.toEntity(currencyToInsert);
-      currenciesRepository.createBatch(currenciesToInsertList);
+      currenciesRepository.create(currenciesToInsertList);
     }
     // 3. Extract the courses from the database according to the received ids for the date specified
     // 3.1 Creating a Map with currency pairs and ExchangeRateDto
@@ -111,13 +111,13 @@ public class Updater {
     if (exchangeRatesToUpdate != null) {
       List<ExchangeRate> exchangeToUpdate = exchangeRateConverterToEntity.toEntity(
           exchangeRatesToUpdate);
-      exchangeRateRepository.updateBatch(exchangeToUpdate);
+      exchangeRateRepository.update(exchangeToUpdate);
     }
     // Make a check for an empty list
     if (exchangeRatesToInsert != null) {
       List<ExchangeRate> exchangeInsert = exchangeRateConverterToEntity.toEntity(
           exchangeRatesToInsert);
-      exchangeRateRepository.createBatch(exchangeInsert);
+      exchangeRateRepository.create(exchangeInsert);
     }
   }
 

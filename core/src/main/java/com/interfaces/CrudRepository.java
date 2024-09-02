@@ -26,7 +26,7 @@ public interface CrudRepository<T> {
    *
    * @param entities the list of entities to be created
    */
-  void createBatch(List<T> entities);
+  void create(List<T> entities);
 
   /**
    * Retrieves all the entities managed by this repository.
@@ -48,7 +48,7 @@ public interface CrudRepository<T> {
    *
    * @param entity the entity to be updated
    */
-  void update(T entity);
+  void upsert(T entity);
 
   /**
    * Upserts (updates or inserts) a batch of entities in the underlying data store. If an entity

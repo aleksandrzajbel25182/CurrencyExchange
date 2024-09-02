@@ -48,7 +48,7 @@ public class ExchangeRateSubscriptionServlet extends HttpServlet {
       return;
     }
 
-    var exchangeRate = exchangeRateRepository.finByCode(baseCurrency, targetCurrency);
+    var exchangeRate = exchangeRateRepository.findByCode(baseCurrency, targetCurrency);
     if (exchangeRate.isPresent()) {
       subscriptions.setUrl(url);
       subscriptions.setBaseCurrencyId(exchangeRate.get().getBaseCurrencyId());

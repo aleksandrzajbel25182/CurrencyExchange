@@ -52,9 +52,10 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       + "VALUES(?,?) ";
 
   private static final String UPDATE_CURRENCY
-      = "UPDATE currencies "
-      + "SET charcode = ? , fullname = ?  "
-      + "WHERE id = ?";
+      = "INSERT INTO currencies (charcode,fullname) "
+      + "VALUES (?,?) "
+      + "ON CONFLICT(charcode) DO UPDATE "
+      + "SET charcode = EXCLUDED.charcode, fullname = EXCLUDED.fullname";
 
   /**
    * Constructs a new `CurrenciesRepository` instance with the provided `DataSource`.
@@ -80,7 +81,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       statement.setString(2, entity.getFullName());
       statement.executeUpdate();
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
@@ -91,7 +92,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
   @Override
-  public void createBatch(List<Currency> entities) {
+  public void create(List<Currency> entities) {
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CURRENCIES)) {
       for (Currency entity : entities) {
@@ -101,7 +102,7 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
       }
       preparedStatement.executeBatch();
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
@@ -156,15 +157,14 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
   @Override
-  public void update(Currency entity) {
+  public void upsert(Currency entity) {
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CURRENCY)) {
       preparedStatement.setString(1, entity.getCode());
       preparedStatement.setString(2, entity.getFullName());
-      preparedStatement.setInt(3, entity.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
