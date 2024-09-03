@@ -1,3 +1,6 @@
+/*
+ * Updater.java        1.0 2024/09/03
+ */
 package update;
 
 import com.entities.Currency;
@@ -16,6 +19,14 @@ import update.dto.ExchangeRateDto;
 import update.util.CurrencyConverterToEntity;
 import update.util.ExchangeRateConverterToEntity;
 
+/**
+ * The Updater class is responsible for updating currency exchange rates based on a specified
+ * source. It interacts with repositories to update currency and exchange rate data in the
+ * database.
+ *
+ * @author Александр Зайбель
+ * @version 1.0
+ */
 public class Updater {
 
   private CurrencyExchangeRateSource source;
@@ -31,6 +42,16 @@ public class Updater {
   private CurrencyConverterToEntity currencyConverterToEntity;
 
   private boolean featureFlag;
+
+  /**
+   * Constructs an Updater with the provided data source, currency exchange rate source, date, and
+   * feature flag. Initializes necessary components for updating currency and exchange rate data.
+   *
+   * @param dataSource  The data source for accessing database resources.
+   * @param source      The currency exchange rate source to retrieve exchange rate data.
+   * @param date        The date for which the exchange rates should be updated.
+   * @param featureFlag A flag indicating whether to update exchange rates.
+   */
   public Updater(DataSource dataSource, CurrencyExchangeRateSource source, LocalDate date,
       boolean featureFlag) {
     this.currencyConverterToEntity = new CurrencyConverterToEntity();
@@ -42,6 +63,11 @@ public class Updater {
     this.featureFlag = featureFlag;
   }
 
+  /**
+   * Updates the currency exchange rates based on the source data. If the featureFlag is set to
+   * false, it calls the baseUpdate method to update exchange rates. Otherwise, it upserts new
+   * currencies and updates existing exchange rates.
+   */
   public void updateExchageRate() {
     List<ExchangeRateDto> exchangeRateDto = source.get(date);
     if (!featureFlag) {
@@ -60,6 +86,24 @@ public class Updater {
     exchangeRateRepository.upsert(exchangeToUpdate);
   }
 
+  /**
+   * The method `baseUpdate` updates exchange rate data in the database. Here are the steps it
+   * performs:
+   *
+   * <ol>
+   * <li>Generates a map `arrayCodeMap` to store exchange rates by their currency codes.</li>
+   * <li>Retrieves currency identifiers from the database for the currency codes in `arrayCodeMap` and stores them in `idByCode`.</li>
+   * <li>Checks for new currencies in `arrayCodeMap` that are not in the database and adds them to the Currency table.</li>
+   * <li>Retrieves exchange rates from the database for the specified currency identifiers and date.</li>
+   * <li>Divides the retrieved data into lists for updating existing exchange rates and adding new ones.</li>
+   * <li>Updates existing exchange rates and adds new exchange rates to the database.</li>
+   * </ol>
+   *
+   * <p>This method will be triggered when the `featureFlag` is set to `false`.
+   * In this case, it will update the exchange rate data according to the described steps.</p>
+   *
+   * @param exchangeRates The list of ExchangeRateDto objects to update the exchange rates.
+   */
   private void baseUpdate(List<ExchangeRateDto> exchangeRates) {
     // 1. Generate a charCode map
     HashMap<String, ExchangeRateDto> arrayCodeMap = getCharCodeMap(exchangeRates);
