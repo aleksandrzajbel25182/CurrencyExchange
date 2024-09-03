@@ -165,6 +165,12 @@ public class Updater {
     }
   }
 
+  /**
+   * Generates a map where currency codes are keys and corresponding ExchangeRateDto objects are values.
+   *
+   * @param exchangeRates The list of ExchangeRateDto objects to create the map from.
+   * @return A HashMap with currency codes as keys and ExchangeRateDto objects as values.
+   */
   private HashMap<String, ExchangeRateDto> getCharCodeMap(List<ExchangeRateDto> exchangeRates) {
     HashMap<String, ExchangeRateDto> arrayCodeMap = new HashMap<>();
     for (ExchangeRateDto exchangeRate : exchangeRates) {
