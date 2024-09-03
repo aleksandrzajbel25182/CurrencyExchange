@@ -73,13 +73,23 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
   @Override
-  public void create(Currency entity) {
+  public Currency create(Currency entity) {
 
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(INSERT_CURRENCIES)) {
+        PreparedStatement statement = connection.prepareStatement(INSERT_CURRENCIES,
+            Statement.RETURN_GENERATED_KEYS)) {
       statement.setString(1, entity.getCode());
       statement.setString(2, entity.getFullName());
       statement.executeUpdate();
+      try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+        if (generatedKeys.next()) {
+          entity.setId(generatedKeys.getInt(1));
+        } else {
+          throw new SQLException("Creating currency failed, no ID obtained.");
+        }
+      }
+
+      return entity;
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -92,15 +102,25 @@ public class CurrenciesRepository implements CrudRepository<Currency> {
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
   @Override
-  public void create(List<Currency> entities) {
+  public List<Currency> create(List<Currency> entities) {
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CURRENCIES)) {
+        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CURRENCIES,
+            Statement.RETURN_GENERATED_KEYS)) {
       for (Currency entity : entities) {
         preparedStatement.setString(1, entity.getCode());
         preparedStatement.setString(2, entity.getFullName());
         preparedStatement.addBatch();
       }
       preparedStatement.executeBatch();
+      try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+        int i = 0;
+        while (generatedKeys.next()) {
+          int id = generatedKeys.getInt(1);
+          entities.get(i).setId(id);
+          i++;
+        }
+      }
+      return entities;
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

@@ -20,14 +20,14 @@ public interface CrudRepository<T> {
    *
    * @param entity the entity to be created
    */
-  void create(T entity);
+  T create(T entity);
 
   /**
    * Creates a batch of entities in the underlying data store.
    *
    * @param entities the list of entities to be created
    */
-  void create(List<T> entities);
+  List<T> create(List<T> entities);
 
   /**
    * Retrieves all the entities managed by this repository.

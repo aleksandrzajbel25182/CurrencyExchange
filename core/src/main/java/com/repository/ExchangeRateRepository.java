@@ -79,18 +79,30 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
    *
    * @param entity the `ExchangeRate` entity to be created
    * @throws RuntimeException if an SQL exception occurs during the database query
+   * @return ExchangeRate
    */
   @Override
-  public void create(ExchangeRate entity) {
+  public ExchangeRate create(ExchangeRate entity) {
 
     try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_EXCHANGE_RATE)) {
+        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_EXCHANGE_RATE,
+            Statement.RETURN_GENERATED_KEYS)) {
 
       preparedStatement.setInt(1, entity.getBaseCurrencyId().getId());
       preparedStatement.setInt(2, entity.getTargetCurrencyId().getId());
       preparedStatement.setBigDecimal(3, entity.getRate());
       preparedStatement.setDate(4, Date.valueOf(entity.getDate()));
       preparedStatement.executeUpdate();
+
+      try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+        if (generatedKeys.next()) {
+          entity.setId(generatedKeys.getInt(1));
+        } else {
+          throw new SQLException("Creating user failed, no ID obtained.");
+        }
+      }
+      return entity;
+
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -103,7 +115,7 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
    * @throws RuntimeException if an SQL exception occurs during the database query
    */
   @Override
-  public void create(List<ExchangeRate> entities) {
+  public List<ExchangeRate> create(List<ExchangeRate> entities) {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(INSERT_EXCHANGE_RATE)) {
@@ -115,6 +127,16 @@ public class ExchangeRateRepository implements CrudRepository<ExchangeRate> {
         preparedStatement.addBatch();
       }
       preparedStatement.executeBatch();
+
+      try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+        int i = 0;
+        while (generatedKeys.next()) {
+          int id = generatedKeys.getInt(1);
+          entities.get(i).setId(id);
+          i++;
+        }
+      }
+      return entities;
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
