@@ -1,7 +1,7 @@
 /*
  * Notification.java        1.0 2024/08/15
  */
-package com.services;
+package com.notification;
 
 import com.entities.ExchangeRate;
 import lombok.AllArgsConstructor;

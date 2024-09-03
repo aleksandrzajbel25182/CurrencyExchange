@@ -7,6 +7,8 @@ package com.services;
 import com.entities.ExchangeRate;
 import com.entities.Subscription;
 import com.interfaces.NotificationSender;
+import com.notification.Notification;
+import com.notification.NotificationTransport;
 import com.repository.SubscriptionsRepository;
 import com.util.JsonConvert;
 
@@ -18,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import javax.sql.DataSource;
 
 /**
@@ -29,86 +33,30 @@ import javax.sql.DataSource;
  * @author Александр Зайбель
  * @version 1.0
  */
-public class NotificationSenderService implements NotificationSender {
+public class NotificationSenderService {
 
-  private SubscriptionsRepository subscriptionsRepository;
+  private NotificationTransport notificationTransport;
 
-  private DataSource dataSource;
+  private NotificationSender sender;
 
-  /**
-   * Constructs a new `NotificationSenderService` instance with the given `DataSource`.
-   *
-   * @param dataSource the `DataSource` instance used to interact with the data source
-   */
-  public NotificationSenderService(DataSource dataSource) {
-    this.dataSource = dataSource;
-    subscriptionsRepository = new SubscriptionsRepository(this.dataSource);
+  public NotificationSenderService(NotificationSender sender) {
+    this.sender = sender;
+
   }
 
-  /**
-   * Sends the notifications to the subscribers. This method retrieves the list of subscriptions
-   * with the "not send" status, creates a notification for each subscription, and sends the
-   * notification to the corresponding URL.
-   */
-  @Override
-  public void send() {
-    List<Subscription> subscriptions = subscriptionsRepository.getByStatus("not sent");
-
-    // Creating a map where the key is the subscription url, the notification value
-    HashMap<String, String> notificationUrlToJson = createNotification(subscriptions);
-
-    List<String> urlSentOKList = new ArrayList<>();
-    try {
-      for (Map.Entry<String, String> notification : notificationUrlToJson.entrySet()) {
-        URL apiUrl = new URL(notification.getKey());
-        HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
-
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
-
-        OutputStream outputStream = connection.getOutputStream();
-
-        outputStream.write(notification.getValue().getBytes());
-        outputStream.flush();
-
-        int responseCode = connection.getResponseCode();
-        if (responseCode == connection.HTTP_OK) {
-          urlSentOKList.add(notification.getKey());
+  public void sendNotification() {
+    List<Future<Boolean>> futureResults = sender.send();
+    for (Future<Boolean> future : futureResults) {
+      try {
+        Boolean result = future.get();
+        if (result) {
+          System.out.println("The notification has been sent successfully");
+        } else {
+          System.out.println("An error occurred when sending the notification");
         }
-        System.out.println("Server response: " + responseCode);
-        outputStream.close();
-        connection.disconnect();
-
+      } catch (InterruptedException | ExecutionException e) {
       }
-      for (Subscription subscription : subscriptions) {
-        if (urlSentOKList.contains(subscription.getUrl())) {
-          subscription.setStatus("sent");
-        }
-      }
-      subscriptionsRepository.upsert(subscriptions);
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     }
-  }
-
-  private HashMap<String, String> createNotification(List<Subscription> subscriptions) {
-    HashMap<String, String> notificationUrlToJson = new HashMap<>();
-    for (Subscription subscription : subscriptions) {
-      notificationUrlToJson.put(subscription.getUrl(),
-          JsonConvert.jsonConvert(new Notification(
-              "Updated currency pair",
-              new ExchangeRate(
-                  subscription.getId(),
-                  subscription.getBaseCurrencyId(),
-                  subscription.getTargetCurrencyId(),
-                  subscription.getRate(),
-                  subscription.getDate()
-              )
-          )));
-    }
-    return notificationUrlToJson;
   }
 }
 

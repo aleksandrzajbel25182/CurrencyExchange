@@ -3,6 +3,9 @@
  */
 package com.interfaces;
 
+import java.util.List;
+import java.util.concurrent.Future;
+
 /**
  * Represents a component responsible for sending notifications.
  *
@@ -22,6 +25,6 @@ public interface NotificationSender {
    * notification. During implementation, it is necessary to ensure that the notification is
    * successfully sent to the intended recipient(s).</p>
    */
-  void send();
+  List<Future<Boolean>> send();
 
 }

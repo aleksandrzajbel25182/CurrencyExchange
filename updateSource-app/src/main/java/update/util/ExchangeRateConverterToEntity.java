@@ -6,6 +6,8 @@ import com.repository.ExchangeRateRepository;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 import javafx.util.Pair;
 import javax.sql.DataSource;
 import update.dto.ExchangeRateDto;
@@ -43,10 +45,10 @@ public class ExchangeRateConverterToEntity implements ExchangeRateDtoToEntity<Ex
     List<ExchangeRate> exchangeRates = new ArrayList<>();
 
     for (Pair<Integer, ExchangeRateDto> entry : exchageRateDtoPair) {
-      ExchangeRate exchangeRate = exchangeRateRepository.findById(entry.getKey());
-      exchangeRate.setRate(BigDecimal.valueOf(entry.getValue().getRate()));
-      exchangeRate.setDate(entry.getValue().getDate());
-      exchangeRates.add(exchangeRate);
+      Optional<ExchangeRate> exchangeRate = exchangeRateRepository.findById(entry.getKey());
+      exchangeRate.get().setRate(BigDecimal.valueOf(entry.getValue().getRate()));
+      exchangeRate.get().setDate(entry.getValue().getDate());
+      exchangeRates.add(exchangeRate.get());
     }
 
     return exchangeRates;

@@ -2,9 +2,13 @@ package update;
 
 
 import com.interfaces.NotificationSender;
+import com.notification.NotificationTransport;
 import com.services.NotificationSenderService;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import javax.sql.DataSource;
 
 import org.postgresql.ds.PGSimpleDataSource;
@@ -29,8 +33,11 @@ public class Main {
     updater.updateExchageRate();
     System.out.println("The database has been updated");
 
-    NotificationSender notificationSender = new NotificationSenderService(dataSource);
-    notificationSender.send();
+
+    NotificationSender notificationSender = new NotificationTransport(dataSource);
+    NotificationSenderService notificationSenderService = new NotificationSenderService(notificationSender);
+    notificationSenderService.sendNotification();
+
     System.out.println("Notification sent");
 
   }

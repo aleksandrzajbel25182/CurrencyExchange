@@ -41,10 +41,10 @@ public class SubscriptionsRepository {
       + "FROM subscriptions "
       + "WHERE status IN(?)";
 
-  private static final String GET_SUBSCRIPTIONS_URL
-      = "SELECT * "
-      + "FROM subscriptions "
-      + "WHERE URL = ? AND status = ? ";
+  private static final String GET_SUBSCRIPTIONS_FOR_UPDATE
+      = "SELECT * FROM "
+      + "subscriptions "
+      + "WHERE status = ? FOR UPDATE LIMIT ?";
 
   /**
    * Constructs a new SubscriptionsRepository instance with the provided DataSource. It also
@@ -125,6 +125,48 @@ public class SubscriptionsRepository {
     }
   }
 
+  public List<Subscription> getUnsentSubscriptionsWithLock(String status, int batchSize,
+      Connection connection) {
+    List<Subscription> subscriptions = new ArrayList<>();
+    Connection connect = connection;
+    PreparedStatement statement = null;
+    try {
+      statement = connect.prepareStatement(GET_SUBSCRIPTIONS_FOR_UPDATE);
+      statement.setString(1, status);
+      statement.setInt(2, batchSize);
+
+      ResultSet resultSet = statement.executeQuery();
+
+      while (resultSet.next()) {
+        Optional<Currency> baseCurrency = currenciesRepository.findById(
+            resultSet.getInt("basecurrencyid"));
+        Optional<Currency> targetCurrency = currenciesRepository.findById(
+            resultSet.getInt("targetcurrencyid"));
+
+        subscriptions.add(
+            new Subscription(
+                resultSet.getInt("id"),
+                resultSet.getString("url"),
+                baseCurrency.get(),
+                targetCurrency.get(),
+                BigDecimal.valueOf(resultSet.getDouble("rate")),
+                resultSet.getDate("date").toLocalDate(),
+                resultSet.getString("status")));
+      }
+    } catch (SQLException e) {
+      if (connect != null) {
+        try {
+          connect.rollback();
+        } catch (SQLException ex) {
+          throw new RuntimeException("Rollback failed", ex);
+        }
+      }
+      throw new RuntimeException("Error in database operation", e);
+    }
+
+    return subscriptions;
+  }
+
   /**
    * Upsert (inserts or updates) a subscription in the database. If the subscription with the same
    * URL, base currency, and target currency already exists, it updates the rate and date fields.
@@ -154,6 +196,7 @@ public class SubscriptionsRepository {
     }
   }
 
+
   public void upsert(List<Subscription> entities) {
 
     StringBuilder sql = new StringBuilder(
@@ -164,6 +207,32 @@ public class SubscriptionsRepository {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
+      for (Subscription entry : entities) {
+        preparedStatement.setString(1, entry.getUrl());
+        preparedStatement.setInt(2, entry.getBaseCurrencyId().getId());
+        preparedStatement.setInt(3, entry.getTargetCurrencyId().getId());
+        preparedStatement.setBigDecimal(4, entry.getRate());
+        preparedStatement.setDate(5, Date.valueOf(entry.getDate()));
+        preparedStatement.setString(6, entry.getStatus());
+        preparedStatement.addBatch();
+      }
+      preparedStatement.executeBatch();
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void upsert(List<Subscription> entities, Connection connection) {
+    StringBuilder sql = new StringBuilder(
+        "INSERT INTO subscriptions (url,basecurrencyid,targetcurrencyid,rate,date,status) "
+            + "VALUES (?,?,?,?,?,?) "
+            + "ON CONFLICT(url,basecurrencyid,targetcurrencyid) DO UPDATE "
+            + "SET rate = EXCLUDED.rate, date = EXCLUDED.date, status = EXCLUDED.status");
+
+    try {
+      Connection conect = connection;
+      PreparedStatement preparedStatement = conect.prepareStatement(sql.toString());
       for (Subscription entry : entities) {
         preparedStatement.setString(1, entry.getUrl());
         preparedStatement.setInt(2, entry.getBaseCurrencyId().getId());
