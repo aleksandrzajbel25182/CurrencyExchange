@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.currencyExchange</groupId>
+    <artifactId>currencyExchange</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>web-app</artifactId>
+  <packaging>war</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <jakarta.servlet-api.version>5.0.0</jakarta.servlet-api.version>
+    <org.postgresql.version>42.7.3</org.postgresql.version>
+    <com.zaxxer.version>5.1.0</com.zaxxer.version>
+    <org.slf4j.version>1.7.36</org.slf4j.version>
+    <org.flywaydb.version>10.14.0</org.flywaydb.version>
+    <org.openjfx.version>17.0.2</org.openjfx.version>
+
+    <!-- Plugins -->
+    <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
+    <maven.compiler.target>16</maven.compiler.target>
+    <maven.compiler.source>16</maven.compiler.source>
+    <junit.version>5.9.2</junit.version>
+    <flyway-maven-plugin.version>10.14.0</flyway-maven-plugin.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.currencyExchange</groupId>
+      <artifactId>core</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${org.postgresql.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>${com.zaxxer.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>${org.slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-maven-plugin</artifactId>
+      <version>${org.flywaydb.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+      <version>${org.flywaydb.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>${org.openjfx.version}</version>
+    </dependency>
+
+  </dependencies>
+
+
+  <build>
+    <finalName>currencyExchageRate</finalName>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>${maven-war-plugin.version}</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <version>${flyway-maven-plugin.version}</version>
+        <configuration>
+          <url>jdbc:postgresql://localhost:5432/currencyExchangedb</url>
+          <driver>org.postgresql.Driver</driver>
+          <user>postgres</user>
+          <password>root</password>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>
